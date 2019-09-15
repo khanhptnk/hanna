@@ -10,13 +10,8 @@ This repo contains code and data-downloading scripts for the paper [Help, Anna! 
 
 <p align="center">
 <img src="teaser/difference.png" alt="IMAGE ALT TEXT HERE" width="500" border="10"/>
- <figcaption>Comparison between HANNA and VLN <a href="https://arxiv.org/abs/1711.07280">(Anderson et al., 2018b)</a></figcaption>
+ <figcaption>Comparison HANNA with VLN <a href="https://arxiv.org/abs/1711.07280">(Anderson et al., 2018b)</a>, VNLA <a href="https://arxiv.org/abs/1812.04155">(Nguyen et al., 2019)</a>, CVDN <a href="https://arxiv.org/abs/1907.04957">(Thomason et al., 2019)</a></figcaption>
 </p>
-
-VLN (Anderson et al., 2018b) does not allow agent to request help. 
-VNLA (Nguyen et al., 2019) models an advisor who is always present to help but speaks simple, templated language. 
-CVDN (Thomason et al., 2019) contains natural conversations in which a human assistant aids another human in navigation tasks but offers limited language interaction simulation, as language assistance is not available when the agent deviates from the collected trajectories and tasks. 
-HANNA simulates human assistants that provide language-and-vision instructions that adapt to the agent’s current position and goal.
 
 ### System requirements
 

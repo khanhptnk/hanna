@@ -1,3 +1,4 @@
+#!/bin/bash
 
 ANNA_DATA_DIR=$(realpath ../data)
 

@@ -25,11 +25,6 @@ Run the image without graphics
 $ sudo -E bash scripts/run_docker.sh
 ```
 
-Run the image with graphics
-```
-$ sudo -E bash scripts/run_docker_graphics.sh
-```
-
 3. Build the simulator
 
 Inside the Docker image, run
@@ -44,3 +39,28 @@ Inside the Docker image, run
 ```
 
 Please make sure that the code runs without errors. 
+
+5. Run the graphical driver
+
+The graphical driver is useful for debugging. Follow the instructions of the [Matterport3D simulator](https://github.com/peteanderson80/Matterport3DSimulator) and make sure you are able to [run the driver](https://github.com/peteanderson80/Matterport3DSimulator#interactive-demo) on its repo. 
+
+NOTE: if you encounter error messages like this
+```
+X Error: BadShmSeg (invalid shared segment parameter) 128
+  Extension:    130 (MIT-SHM)
+  Minor opcode: 2 (X_ShmDetach)
+  Resource id:  0x3a0001d
+```
+
+Export `QT_X11_NO_MITSHM=1` may solve the problem
+```
+~/mount/Matterport3DSimulator# export QT_X11_NO_MITSHM=1
+~/mount/Matterport3DSimulator# python src/driver/driver.py
+```
+
+After you successfully run the driver on the `Matterport3DSimulator` repo, run the driver on this repo as follows
+```
+$ sudo -E bash scripts/run_docker_graphics.sh
+~/mount/hanna/code# export QT_X11_NO_MITSHM=1
+~/mount/hanna/code# python src/driver/driver.py
+```

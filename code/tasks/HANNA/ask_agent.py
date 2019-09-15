@@ -1,0 +1,377 @@
+''' Agents: stop/random/shortest/seq2seq  '''
+
+from __future__ import division
+
+import json
+import os
+import sys
+import numpy as np
+import random
+import time
+
+import torch
+import torch.nn as nn
+import torch.distributions as D
+from torch import optim
+import torch.nn.functional as F
+
+from agent import BaseAgent
+from oracle import make_oracle
+
+
+class AskAgent(BaseAgent):
+
+    ask_actions = ['do_nothing', 'request_help', '<start>']
+    feedback_options = ['teacher', 'argmax', 'sample']
+
+    def __init__(self, model, hparams, device):
+        super(AskAgent, self).__init__()
+
+        self.model = model
+        self.nav_criterion = nn.CrossEntropyLoss(ignore_index=-1)
+        self.ask_criterion = nn.CrossEntropyLoss(ignore_index=-1)
+        self.ask_reason_criterion = nn.BCEWithLogitsLoss(reduction='none')
+
+        self.env_oracle = make_oracle('env_oracle', hparams.scan_path)
+        self.anna = make_oracle('anna', hparams, self.env_oracle)
+        self.teacher = make_oracle('teacher', hparams, self.ask_actions,
+            self.env_oracle, self.anna)
+
+        self.device = device
+
+        self.random = random
+        self.random.seed(hparams.seed)
+
+        self.max_instr_len = hparams.max_instr_len
+        self.double_request_budget_every = hparams.double_request_budget_every
+
+        self.instr_padding_idx = hparams.instr_padding_idx
+        self.ask_baseline = hparams.ask_baseline
+        if hasattr(hparams, 'instruction_baseline'):
+            self.instruction_baseline = hparams.instruction_baseline
+        else:
+            self.instruction_baseline = None
+        if hasattr(hparams, 'perfect_interpretation') and hparams.perfect_interpretation:
+            self.perfect_interpretation = True
+
+        self.bc_iters   = hparams.bc_iters
+        self.bcui_iters = hparams.bcui_iters
+
+        self.from_numpy = lambda array: \
+            torch.from_numpy(array).to(self.device)
+
+        self.alpha = hparams.alpha
+
+        self.hparams = hparams
+
+    @staticmethod
+    def n_output_nav_actions():
+        return 37
+
+    @staticmethod
+    def n_input_ask_actions():
+        return len(AskAgent.ask_actions)
+
+    @staticmethod
+    def n_output_ask_actions():
+        return len(AskAgent.ask_actions) - 1
+
+    def _text_context_variable(self, obs):
+        ''' Extract instructions from a list of observations and sort by descending
+             sequence length (to enable PyTorch packing). '''
+
+        def encode_batch(seq_list):
+            seq_tensor = np.array(seq_list)
+            seq_lengths = np.argmax(seq_tensor == self.instr_padding_idx, axis=1)
+            seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]
+
+            max_length = max(seq_lengths)
+            assert max_length <= self.max_instr_len
+
+            seq_tensor  = self.from_numpy(seq_tensor).long()[:,:max_length]
+            seq_lengths = self.from_numpy(seq_lengths).long()
+
+            seq_mask = (seq_tensor == self.instr_padding_idx)
+
+            return seq_tensor, seq_mask
+
+        nav_seq_list = []
+        for ob in obs:
+            instruction = ob['instruction']
+            if self.instruction_baseline == 'vision_only' and ob['mode'] == 'on_route':
+                instruction = ''
+            nav_seq_list.append(self.env.encode(instruction))
+
+        #nav_seq_list = [self.env.encode(ob['instruction']) for ob in obs]
+
+        return encode_batch(nav_seq_list)
+
+    def _visual_feature_variable(self, obs):
+
+        def to_tensor(feature_tuple):
+            return self.from_numpy(np.stack(feature_tuple))
+
+        curr_view_feature_tuple = tuple(ob['curr_view_features'] for ob in obs)
+        goal_view_feature_tuple = tuple(ob['goal_view_features'] for ob in obs)
+
+        return to_tensor(curr_view_feature_tuple), \
+               to_tensor(goal_view_feature_tuple)
+
+    def _nav_action_variable(self, obs):
+        # get the maximum number of actions of all sample in this batch
+        max_num_a = max(len(ob['adj_loc_list']) for ob in obs)
+        invalid = np.zeros((self.batch_size, max_num_a), np.uint8)
+        action_embed_dim = obs[0]['action_embeds'].shape[-1]
+        action_embeds = np.zeros(
+            (self.batch_size, max_num_a, action_embed_dim), dtype=np.float32)
+        for i, ob in enumerate(obs):
+            adj_loc_list = ob['adj_loc_list']
+            num_a = len(adj_loc_list)
+            invalid[i, num_a:] = 1
+            action_embeds[i, :num_a, :] = ob['action_embeds']
+        return self.from_numpy(action_embeds), self.from_numpy(invalid)
+
+    def _ask_action_variable(self, obs):
+        # Action masking
+        ask_logit_mask = torch.zeros(
+            self.batch_size, AskAgent.n_output_ask_actions(), dtype=torch.uint8,
+            device=self.device)
+
+        ask_mask_indices = []
+        for i, ob in enumerate(obs):
+            if ob['queries_unused'] <= 0 or ob['ended'] or \
+                not self.anna.can_request(ob['scan'], ob['viewpoint']):
+                ask_mask_indices.append(
+                    (i, self.ask_actions.index('request_help')))
+
+        ask_logit_mask[list(zip(*ask_mask_indices))] = 1
+
+        return ask_logit_mask
+
+    def _argmax(self, logit):
+        return logit.max(1)[1].detach()
+
+    def _sample(self, logit):
+        prob = F.softmax(logit, dim=1).contiguous()
+
+        # Weird bug with torch.multinomial: it samples even zero-prob actions.
+        while True:
+            sample = torch.multinomial(prob, 1, replacement=True).view(-1)
+            is_good = True
+            for i in range(logit.size(0)):
+                if logit[i, sample[i].item()].item() == -float('inf'):
+                    is_good = False
+                    break
+            if is_good:
+                break
+
+        #print(sample[23].tolist(), logit[23].tolist())
+
+        return sample
+
+    def _next_action(self, logit, feedback):
+        if feedback == 'argmax':
+            return self._argmax(logit)
+        if feedback == 'sample':
+            return self._sample(logit)
+        sys.exit('Invalid feedback option')
+
+    def _compute_nav_dist(self, obs, nav_logit, print_prob=None):
+        nav_softmax = F.softmax(nav_logit, dim=1).tolist()
+        nav_softmax_full = np.zeros((self.batch_size,
+            AskAgent.n_output_nav_actions()), dtype=np.float32)
+        for i, ob in enumerate(obs):
+            """
+            if i == print_prob:
+                print(nav_softmax[i])
+            """
+            for p, adj_dict in zip(nav_softmax[i], ob['adj_loc_list']):
+                k = adj_dict['relViewIndex']
+                nav_softmax_full[i, k] += p
+                """
+                if i == print_prob:
+                    print(k, p, adj_dict['absViewIndex'])
+                """
+        #print(print_prob, nav_softmax_full[print_prob,:].tolist())
+        return self.from_numpy(nav_softmax_full)
+
+    def _compute_loss(self):
+
+        self.loss = self.nav_loss + self.ask_loss
+        self.losses.append(self.loss.item() / self.episode_len)
+        #print(self.loss.item())
+
+        self.nav_losses.append(self.nav_loss.item() / self.episode_len)
+        self.ask_losses.append(self.ask_loss.item() / self.episode_len)
+
+    def _setup(self, env, feedback):
+        self.nav_feedback = feedback['nav']
+        self.ask_feedback = feedback['ask']
+
+        assert self.nav_feedback in self.feedback_options
+        assert self.ask_feedback in self.feedback_options
+
+        self.env = env
+        self.env.env_oracle = self.env_oracle
+        self.losses = []
+        self.nav_losses = []
+        self.ask_losses = []
+
+    def test(self, env_name, env, feedback, iter):
+        ''' Evaluate once on each instruction in the current environment '''
+
+        self.is_eval = True
+        self._setup(env, feedback)
+        self.model.eval()
+        self.env.max_queries = 1000
+
+        self.bc = self.bcui = False
+
+        if hasattr(self, 'perfect_interpretation') and self.perfect_interpretation:
+            self.bcui = True
+        """
+        if hasattr(self.hparams, 'ask_every_iters') and iter < self.hparams.ask_every_iters:
+            self.ask_baseline = 'ask_every,5'
+            self.teacher.ask_oracle.ask_every = 5
+        else:
+            self.ask_baseline = self.hparams.ask_baseline
+            self.teacher.ask_oracle.ask_every = 0
+        """
+
+        self.episode_len = self.hparams.eval_episode_len
+
+        self.anna.is_eval = True
+        if '_seen_anna' in env_name:
+            self.anna.split_name = 'train_seen'
+        elif '_unseen_anna' in env_name:
+            self.anna.split_name = 'train_unseen'
+        elif env_name == 'val_unseen':
+            self.anna.split_name = 'val'
+        elif env_name == 'test_unseen':
+            self.anna.split_name = 'test'
+        else:
+            raise Exception('env_name not found %s' % env_name)
+
+        return BaseAgent.test(self)
+
+    def train(self, env, optimizer, start_iter, end_iter, feedback):
+        ''' Train for a given number of iterations '''
+
+        self.is_eval = False
+        self._setup(env, feedback)
+        self.model.train()
+
+        self.anna.is_eval = False
+        self.anna.split_name = 'train_seen'
+
+        self.episode_len = self.hparams.train_episode_len
+
+        last_traj = []
+        for iter in range(start_iter, end_iter + 1):
+            #print(iter)
+            optimizer.zero_grad()
+
+            """
+            self.env.max_queries = min(
+                100, 2 ** (iter // self.double_request_budget_every))
+            """
+            self.env.max_queries = 1000
+
+            self.bc   = iter < self.bc_iters
+            self.bcui = iter < self.bcui_iters
+
+            """
+            if iter < self.hparams.ask_every_iters:
+                self.ask_baseline = 'ask_every,5'
+                self.teacher.ask_oracle.ask_every = 5
+            else:
+                self.ask_baseline = self.hparams.ask_baseline
+                self.teacher.ask_oracle.ask_every = 0
+            """
+
+            traj = self.rollout()
+            if end_iter - iter + 1 <= 10:
+                last_traj.extend(traj)
+            self.loss.backward()
+            optimizer.step()
+            #torch.cuda.empty_cache()
+
+        return last_traj
+
+
+class SimpleAgent(BaseAgent):
+
+    def __init__(self, hparams):
+        super(SimpleAgent, self).__init__()
+
+        self.random = random
+        self.random.seed(hparams.seed)
+        self.episode_len = hparams.eval_episode_len
+
+        self.random_agent = hparams.random_agent
+        self.forward_agent = hparams.forward_agent
+        self.shortest_agent = hparams.shortest_agent
+
+        if self.shortest_agent:
+            self.env_oracle = make_oracle('env_oracle', hparams.scan_path)
+            self.nav_teacher = make_oracle('nav', self.env_oracle)
+
+    def test(self, env_name, env, feedback, iter):
+
+        self.is_eval = True
+        self.env = env
+        self.losses = [0]
+        self.nav_losses = [0]
+
+        return BaseAgent.test(self)
+
+    def rollout(self):
+
+        # Reset environment.
+        obs = self.env.reset()
+        batch_size = len(obs)
+
+        # Trajectory history.
+        traj = [{
+            'scan': ob['scan'],
+            'instr_id': ob['instr_id'],
+            'agent_pose': [(ob['viewpoint'], ob['heading'], ob['elevation'])],
+            'agent_nav' : []
+        } for ob in obs]
+
+        ended = [False] * batch_size
+
+        for time_step in range(self.episode_len):
+
+            nav_a_list = [None] * batch_size
+
+            if self.shortest_agent:
+                nav_a_list = self.nav_teacher(obs)
+            else:
+                for i, ob in enumerate(obs):
+                    if self.random_agent:
+                        nav_a_list[i] = self.random.randint(
+                            0, len(ob['adj_loc_list']) - 1)
+                    else:
+                        assert self.forward_agent
+                        if len(ob['adj_loc_list']) > 1 and time_step < 10:
+                            nav_a_list[i] = 1
+                        else:
+                            nav_a_list[i] = 0
+
+            obs = self.env.step(nav_a_list, [None] * len(obs))
+
+            for i, ob in enumerate(obs):
+                if not ended[i]:
+                    traj[i]['agent_pose'].append((
+                        ob['viewpoint'], ob['heading'], ob['elevation']))
+                    traj[i]['agent_nav'].append(nav_a_list[i])
+
+                ended[i] |= nav_a_list[i] == 0
+
+            if all(ended):
+                break
+
+        return traj
+
+

@@ -18,8 +18,6 @@ alt="IMAGE ALT TEXT HERE" width="500" border="10"/>
 * CVDN [(Thomason et al., 2019)](https://arxiv.org/abs/1907.04957) contains natural conversations in which a human assistant aids another human in navigation tasks but offers limited language interaction simulation, as language assistance is not available when the agent deviates from the collected trajectories and tasks. 
 * HANNA simulates human assistants that provide language-and-vision instructions that adapt to the agent’s current position and goal.
 
-For more information, please read our paper :)
-
 ### System requirements
 
 The environment simulator is installed and runs on a Docker image. Please install:

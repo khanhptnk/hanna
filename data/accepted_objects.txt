@@ -1,0 +1,289 @@
+air conditioner
+altar
+armchair
+art
+bag
+balcony railing
+ball
+bar
+barricade
+basin
+basket
+bathtub
+bed
+bed sheet
+bedpost
+bench
+bidet
+bin
+blanket
+blinds
+board
+book
+bookcase
+books
+bookshelf
+bottle
+bottle of soap
+bottles
+bowl
+bowl of fruit
+box
+boxes
+bucket
+bulletin board
+bushes
+bust
+candelabra
+candle
+candles
+candlestick
+car
+case
+chair
+chair bottom
+chandelier
+chest
+chest of drawers
+chimney
+church seating
+clock
+closet
+closet shelf
+closet shelving
+cloth
+clothes
+clothes dryer
+clothes hanger rod
+clothes hangers
+clutter
+coat
+coat hanger
+coat rack
+coffee maker
+coffee table
+commode
+computer
+computer desk
+container
+control
+couch
+counter
+cup
+cupboard
+curtain
+curtain rod
+curtain valence
+curtains
+cushion
+decor
+decorative plate
+desk
+desk chair
+dining chair
+dining table
+dinner place setting
+dishwasher
+display case
+doll
+drawer
+drawers
+dress
+dresser
+drums
+duct
+easel
+easy chair
+electric wire casing
+end table
+exercise bike
+exercise equipment
+exercise machine
+exit sign
+fan
+faucet
+fence
+fencing
+figure
+fire alarm
+fire extinguisher
+fireplace
+flower
+flower pot
+flowers
+food
+footrest
+footstool
+fridge
+fruit bowl
+furniture
+glass
+globe
+grass
+guitar
+gym equipment
+hamper
+handbag
+handle
+hanger
+hangers
+hat
+headboard
+heater
+highchair
+hose
+jar
+keyboard
+kitchen appliance
+kitchen center island
+kitchen counter
+kitchen island
+kitchen shelf
+kitchen utensils
+knickknack
+knob
+ladder
+lamp
+lampshade
+landing
+laundry basket
+ledge
+locker
+lounge chair
+mask
+massage bed
+massage table
+microwave
+mirror
+monitor
+nightstand
+office chair
+office table
+ornament
+ottoman
+oven
+painter
+painting
+pan
+panel
+paper
+paper towel
+paper towel dispenser
+pedestal
+pew
+pews
+phone
+photo
+piano
+picture
+pillar
+pillow
+pillows
+placemat
+plant
+plant pot
+plants
+plate
+plate of food
+plush toy
+pool
+pool table
+post
+pot
+potted plant
+power breaker box
+printer
+projector
+purse
+rack
+radiator
+rail
+railing
+range hood
+refrigerator
+ridge
+robe
+rope
+round table
+scale
+screen
+sculpture
+seat
+shampoo
+sheet
+shelf
+shelf with clutter
+shelves
+shelving
+shoes
+showcase
+shower
+shower bench
+shower curtain
+shower curtain rod
+shower handle
+shower head
+shower soap shelf
+shrubbery
+sign
+sink
+smoke alarm
+smoke detector
+soap
+soap dish
+soap dispenser
+sofa
+sofa chair
+sofa set
+speaker
+stand
+statue
+stool
+storage shelving
+stove
+suitcase
+switch
+swivel chair
+table
+table lamp
+tap
+teapot
+telephone
+thermostat
+tissue box
+tissue paper
+toilet
+toilet brush
+toilet paper
+toilet paper dispenser
+toilet paper holder
+toiletry
+towel
+towel bar
+towels
+toy
+trash
+trash bin
+trash can
+tray
+treadmill
+tree
+trees
+trinket
+tv
+tv stand
+umbrella
+urn
+vanity
+vase
+vent
+wardrobe
+wardrobe rod
+wash basin
+washing machine
+water cooler
+weight machine
+weights
+whiteboard
+wood
+wooden chair

@@ -61,11 +61,10 @@ Export `QT_X11_NO_MITSHM=1` may solve the problem
 After you successfully run the driver on the `Matterport3DSimulator` repo, run the driver on this repo as follows
 ```
 $ sudo -E bash scripts/run_docker_graphics.sh
-~/mount/hanna/code# export QT_X11_NO_MITSHM=1
 ~/mount/hanna/code# python src/driver/driver.py
 ```
 
-A window
+If everything is good, you will see the a window popping up like this
 
 <p align="center">
 <img src="../teaser/simulator.png" alt="IMAGE ALT TEXT HERE" width="500" border="10"/>

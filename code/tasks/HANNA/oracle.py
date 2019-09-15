@@ -19,6 +19,9 @@ import MatterSim
 
 
 class EnvOracle(object):
+    '''
+        Environment oracle has access to environment graphs
+    '''
 
     def __init__(self, scan_file):
         self.scans = set()
@@ -82,6 +85,11 @@ class EnvOracle(object):
 
 
 class NavTeacher(object):
+    '''
+        Curiosity-Encouraging navigation teacher output:
+            - Reference action
+            - Actions that are mistaken in the past while executing the same language instruction
+    '''
 
     def __init__(self, env_oracle):
         self.env_oracle = env_oracle
@@ -119,23 +127,17 @@ class NavTeacher(object):
     def _neg_actions(self, idx, info_list):
         neg_targets = []
         bad_next_viewpoints = defaultdict(set)
+
         for info in info_list[:-1]:
             neg_targets.append([])
+
             # If episode is over, no negative actions are added
             if info['nav_target'] == -1:
                 continue
+
             ob = info['ob']
-
             scan = ob['scan']
-
-            """
-            _, target_point = self.env_oracle.find_nearest_point(
-                scan, ob['viewpoint'], ob['target_viewpoints'])
-            """
-
             long_id = '_'.join([ob['viewpoint'], ob['subgoal_instr_id']])
-            #if idx == 0:
-            #    print(long_id, bad_next_viewpoints[long_id])
 
             next_viewpoints = [
                 loc['nextViewpointId'] for loc in ob['adj_loc_list']]
@@ -149,8 +151,6 @@ class NavTeacher(object):
                 viewpoint = ob['adj_loc_list'][info['nav_a']]['nextViewpointId']
                 bad_next_viewpoints[long_id].add(viewpoint)
 
-        #if idx == 0:
-        #    print(neg_targets)
         return neg_targets
 
     def all_neg_nav(self, batch_info_list):
@@ -167,19 +167,20 @@ class NavTeacher(object):
                 neg_target.extend(item)
                 neg_offset.append(l)
                 l += len(item)
-            #print(len(neg_offset))
             neg_targets.append(np.array(neg_target, dtype=np.int64))
             neg_offsets.append(neg_offset)
-
-        #print(neg_targets)
-        #sys.exit(1)
 
         return neg_targets, np.array(neg_offsets, dtype=np.int64)
 
 
 class AskTeacher(object):
+    '''
+        Help-request teacher suggests:
+            - Whether the agent should request help
+            - Reasons for requesting (lost, uncertain_wrong, never_asked)
+    '''
 
-    reason_labels = ['lost', 'uncertain_wrong', 'asked_close']
+    reason_labels = ['lost', 'uncertain_wrong', 'already_asked']
 
     def __init__(self, hparams, agent_ask_actions, env_oracle, anna):
 
@@ -193,7 +194,7 @@ class AskTeacher(object):
 
         self.LOST = self.reason_labels.index('lost')
         self.UNCERTAIN_WRONG = self.reason_labels.index('uncertain_wrong')
-        self.ASKED_CLOSE = self.reason_labels.index('asked_close')
+        self.ALREADY_ASKED = self.reason_labels.index('already_asked')
 
         self.no_ask = self.ask_every = self.random_ask = 0
         if hparams.ask_baseline is not None:
@@ -258,7 +259,7 @@ class AskTeacher(object):
                 ask_targets[i] = self.IGNORE
                 ask_reasons[i].append('no_route')
 
-        # Ask due to being lost
+        # Request due to being lost
         last_pos = -1
         for i, info in enumerate(info_list):
             # Split trajectory into segments during each of which the agent is
@@ -299,7 +300,7 @@ class AskTeacher(object):
             if info['ob']['ended']:
                 break
 
-        # Ask due to being uncertain and wrong!
+        # Request due to being uncertain and wrong!
         for i, info in enumerate(info_list[:-1]):
             if ask_targets[i] == self.IGNORE:
                 continue
@@ -308,22 +309,20 @@ class AskTeacher(object):
             entropy = scipy.stats.entropy(nav_dist, base=len(nav_dist))
             if entropy >= self.uncertain_threshold and \
                 info['nav_argmax'] != info['nav_target']:
-                #if ask_targets[i] == self.DO_NOTHING:
                 ask_targets[i] = self.REQUEST_HELP
                 ask_reason_targets[i][self.UNCERTAIN_WRONG] = 1
                 ask_reasons[i].append('uncertain_wrong')
 
+        # NOT request due to previously requested at the current location
         ask_points = set()
         for i, info in enumerate(info_list[:-1]):
             if ask_targets[i] == self.IGNORE:
                 continue
-            # Try request Anna
-            #viewpoint = self.anna(info['ob'])['start_node']
             viewpoint = info['ob']['viewpoint']
             if viewpoint in ask_points:
                 ask_targets[i] = self.DO_NOTHING
-                ask_reason_targets[i][self.ASKED_CLOSE] = 1
-                ask_reasons[i].append('asked_close')
+                ask_reason_targets[i][self.ALREADY_ASKED] = 1
+                ask_reasons[i].append('already_asked')
             if info['ask_a'] == self.REQUEST_HELP:
                 ask_points.add(viewpoint)
 
@@ -368,6 +367,9 @@ class Teacher(object):
 
 
 class ANNA(object):
+    '''
+        Automatic Natural Navigation Assistant
+    '''
 
     def __init__(self, hparams, env_oracle):
 
@@ -385,8 +387,8 @@ class ANNA(object):
                 else:
                     self.routes[scan][start_point].append(r)
 
+        # Pre-compute zones of attention
         radius = hparams.start_point_radius
-
         self.requestable_points = defaultdict(lambda: defaultdict(list))
         for scan in data:
             for v in self.env_oracle.get_graph(scan):
@@ -435,10 +437,12 @@ class ANNA(object):
 
         valid_viewpoints = self.requestable_points[scan][viewpoint]
 
+        # Gather all valid routes
         valid_routes = []
         for v in valid_viewpoints:
             valid_routes.extend(self.routes[scan][v])
 
+        # Find departure node and goal nearest to depart node
         distances, depart_nodes, nearest_goals = zip(*[
             self.env_oracle.distance_between_two_sets_of_nodes(
                 scan, r['path'], goal_viewpoints) for r in valid_routes])

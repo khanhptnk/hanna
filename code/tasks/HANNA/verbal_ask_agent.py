@@ -47,7 +47,6 @@ class VerbalAskAgent(AskAgent):
             'teacher_reason': [],
             'agent_reason': [],
             'agent_reason_prob': [],
-            'adj_loc_list': []
         } for ob in obs]
 
         # Initial decoder states.
@@ -68,21 +67,8 @@ class VerbalAskAgent(AskAgent):
         self.ask_reason_loss = torch.tensor(0., device=device)
 
         print_prob = None
-        """
-        for i, ob in enumerate(obs):
-            if ob['instr_id'] == '110099_0':
-            #if ob['instr_id'] == '105700_0':
-                print_prob = i
-        """
 
         for time_step in range(self.episode_len):
-
-            """
-            if print_prob is not None:
-                print(time_step, obs[print_prob]['viewpoint'], obs[print_prob]['instruction'])
-            else:
-                continue
-            """
 
             # Encode instruction
             if should_encode_instruction:
@@ -149,10 +135,6 @@ class VerbalAskAgent(AskAgent):
 
             for i in range(self.batch_size):
 
-                # Behavior cloning
-                if self.bc:
-                    nav_a_list[i] = max(0, nav_target_list[i])
-
                 # BCUI: agent acts like teacher when on route.
                 if self.bcui and obs[i]['mode'] == 'on_route':
                     nav_a_list[i] = max(0, nav_target_list[i])
@@ -216,7 +198,6 @@ class VerbalAskAgent(AskAgent):
                     traj[i]['message'].append(anna_messages[i])
                     traj[i]['time_on_task'].append(ob['time_on_task'])
                     traj[i]['time'].append(ob['time'])
-                    traj[i]['adj_loc_list'].append(adj_loc_lists[i])
 
                     traj[i]['teacher_nav'].append(nav_target_list[i])
 
@@ -259,8 +240,8 @@ class VerbalAskAgent(AskAgent):
         for i in range(self.batch_size):
             info_list[i].append({ 'ob' : obs[i] })
 
-        # Look back the trajectory and decide when the agent should have asked
-
+        # RETROSPECTIVE navigation teacher
+        # Look back at the trajectory and decide when the agent should have requested
         if self.ask_baseline is None:
             ask_targets, ask_reason_targets, ask_reasons = \
                 self.teacher.all_ask(info_list)
@@ -274,6 +255,7 @@ class VerbalAskAgent(AskAgent):
 
         if not self.is_eval:
 
+            # Help-request loss
             if self.ask_baseline is None:
                 # seq_len x batch
                 ask_targets = self.from_numpy(ask_targets.transpose())
@@ -299,9 +281,12 @@ class VerbalAskAgent(AskAgent):
                     else:
                         ask_reason_loss = 0.
 
-                    self.ask_loss += ask_loss + ask_reason_loss
+                    if self.hparams.no_reason:
+                        self.ask_loss += ask_loss
+                    else:
+                        self.ask_loss += ask_loss + ask_reason_loss
 
-            # nav_loss
+            # Navigation loss
             nav_pos_targets = self.from_numpy(np.stack(nav_pos_targets))
             neg_offsets = self.from_numpy(neg_offsets)
 
@@ -326,7 +311,7 @@ class VerbalAskAgent(AskAgent):
                     nav_neg_loss = 0.
 
                 # nav_loss = -log P(a+) + alpha/K sum log P(a-)
-                self.nav_loss += nav_pos_loss - self.alpha * nav_neg_loss
+                self.nav_loss += nav_pos_loss - self.hparams.alpha * nav_neg_loss
 
             self._compute_loss()
 

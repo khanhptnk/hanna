@@ -63,6 +63,9 @@ def _calculate_headings_and_elevations_for_views(sim, goalViewIndices):
 
 
 class ImageFeatures(object):
+    '''
+       Load and manage visual features (pretrained by ResNet-152 on ImageNet)
+    '''
 
     def __init__(self, image_feature_file, device):
         print('Loading image features from %s' % image_feature_file)
@@ -165,7 +168,6 @@ class Simulator():
             assert state.location.viewpointId == nextViewpointId
 
     def get_panorama_states(self):
-
         self.adj_loc_lists = []
         for state in self.states:
             long_id = '_'.join([state.scanId,
@@ -287,7 +289,6 @@ class Batch():
         self.time = [0] * self.batch_size
         self.time_on_task = [0] * self.batch_size
         self.ended = [False] * self.batch_size
-        self.queries_unused = [self.max_queries] * self.batch_size
 
         self.instruction = [item['instruction'] for item in self.batch]
         self.anna_message = [None] * self.batch_size
@@ -313,21 +314,26 @@ class Batch():
             message = anna_messages[i]
             if message is None:
                 if nav_actions[i] == 0:
+                    # Agent wants to depart route
                     if self.mode[i] == 'on_route':
                         self.depart_route(i)
                     else:
+                        # Agent wants to end episode
                         assert self.mode[i] == 'main'
                         self.ended[i] = True
+                    # Agent stays at the same location
                     nextViewpointIds.append(states[i].location.viewpointId)
                     nextViewIndices.append(states[i].viewIndex)
                     navigableViewIndices.append(states[i].viewIndex)
                 else:
                     self.time_on_task[i] += 1
+                    # Agent chooses a next location
                     loc = adj_loc_lists[i][nav_actions[i]]
                     nextViewpointIds.append(loc['nextViewpointId'])
                     nextViewIndices.append(loc['absViewIndex'])
                     navigableViewIndices.append(loc['absViewIndex'])
             else:
+                # Agent requests help and enters route
                 nextViewpointIds.append(message['start_node'])
                 nextViewIndices.append(message['view_id'])
                 # Find viewIndex that contains start_node
@@ -340,6 +346,7 @@ class Batch():
                 navigableViewIndices.append(navigableViewIndex)
                 self.enter_route(i, message)
 
+        # Execute navigation action
         self.sim.navigate_to_locations(
             nextViewpointIds, nextViewIndices, navigableViewIndices)
 
@@ -347,8 +354,9 @@ class Batch():
 
     def enter_route(self, i, message):
         self.mode[i] = 'on_route'
+        # Reset local time
         self.time_on_task[i] = 0
-        self.queries_unused[i] -= 1
+        # Set subtask
         self.instruction[i] = message['instruction']
         self.target_viewpoints[i] = [message['depart_node']]
         self.target_viewpoint_with_features[i] = self.target_viewpoints[i][0]
@@ -357,7 +365,9 @@ class Batch():
 
     def depart_route(self, i):
         self.mode[i] = 'main'
+        # Reset local time
         self.time_on_task[i] = 0
+        # Resume main task
         self.instruction[i] = self.batch[i]['instruction']
         self.target_viewpoints[i] = [self.anna_message[i]['goal_node']]
         self.target_viewpoint_with_features[i] = self.target_viewpoints[i][0]

@@ -20,6 +20,10 @@ clone = lambda module, n: [dc(module) for _ in range(n)]
 
 
 class LayerNormResidual(nn.Module):
+    '''
+        Apply a generic transformation followed by dropout, residual connection,
+            and layer normalization
+    '''
 
     def __init__(self, module, input_size, output_size, dropout):
 
@@ -41,6 +45,10 @@ class LayerNormResidual(nn.Module):
 
 
 class PositionalEncoding(nn.Module):
+    '''
+        Sinusoid positional encoding. Implementation adapted from OpenNMT-py:
+           https://github.com/OpenNMT/OpenNMT-py/blob/master/onmt/modules/embeddings.py#L11
+    '''
 
     def __init__(self, dim, max_len):
         if dim % 2 != 0:
@@ -59,7 +67,6 @@ class PositionalEncoding(nn.Module):
 
     def forward(self, emb, indices=None):
         if indices is None:
-            #print('input', self.pe[:, :emb.size(1)].size(), emb[23,0,:20].tolist())
             emb = emb + self.pe[:, :emb.size(1)]
         else:
             emb = emb + self.pe.squeeze(0).index_select(0, indices)
@@ -67,6 +74,9 @@ class PositionalEncoding(nn.Module):
 
 
 class LearnedTime(nn.Module):
+    '''
+        ResNet-based positional encoding
+    '''
 
     def __init__(self, input_size, output_size):
 
@@ -95,6 +105,9 @@ class LearnedTime(nn.Module):
 
 
 class TransformerLayer(nn.Module):
+    '''
+        Generic Transformer layer
+    '''
 
     def __init__(self, attention_heads, dropout):
 
@@ -119,6 +132,9 @@ class TransformerLayer(nn.Module):
 
 
 class EncoderLayer(TransformerLayer):
+    '''
+        Text-encoding layer
+    '''
 
     def __init__(self, query_size, mem_size, output_size, attention_heads, dropout):
 
@@ -137,6 +153,9 @@ class EncoderLayer(TransformerLayer):
 
 
 class TextDecoderLayer(TransformerLayer):
+    '''
+        Inter-task layer
+    '''
 
     def __init__(self, query_size, mem_size, output_size,
             attention_heads, dropout):
@@ -149,72 +168,57 @@ class TextDecoderLayer(TransformerLayer):
             output_size, mem_size, output_size)
         self.feed_forward = self.feed_forward_fn(output_size, output_size)
 
-    def forward(self, input, self_key, self_value, enc_mem, enc_mask=None, print_prob=None):
+    def forward(self, input, self_key, self_value, enc_mem, enc_mask=None):
 
         hidden = self.self_attention(input, self_key, self_value)
-        output = self.enc_attention(hidden, enc_mem, enc_mem, enc_mask, print_prob=print_prob)
+        output = self.enc_attention(hidden, enc_mem, enc_mem, enc_mask)
         output = self.feed_forward(output)
 
         return hidden, output
 
 
 class StateDecoderLayer(TransformerLayer):
+    '''
+        Intra-task layer
+    '''
 
     def __init__(self, query_size, mem_size, output_size,
-            attention_heads, dropout):
+            attention_heads, dropout, hparams):
 
         super(StateDecoderLayer, self).__init__(attention_heads, dropout)
 
         self.self_attention = self.attention_fn(
             query_size, mem_size, output_size)
-        self.sim_attention  = SimAttention()
 
-        """
-        self.feed_forward = self.feed_forward_fn(output_size * 2, output_size)
-        """
+        if hparams.no_sim_attend:
+            self.feed_forward = self.feed_forward_fn(output_size, output_size)
+        else:
+            self.sim_attention  = SimAttention()
+            self.feed_forward = self.feed_forward_fn(output_size, output_size)
+            self.gate = nn.Sequential(
+                nn.Linear(output_size * 2, output_size),
+                nn.Sigmoid()
+            )
 
-        """
-        self.feed_forward = self.feed_forward_fn(output_size, output_size)
-        """
+    def forward(self, input, key, value, mask=None):
 
-        self.feed_forward = self.feed_forward_fn(output_size, output_size)
-        self.gate = nn.Sequential(
-            nn.Linear(output_size * 2, output_size),
-            nn.Sigmoid()
-        )
+        if self.no_sim_attend:
+            output = self.self_attention(input, key, value)
+            output = self.feed_forward(output)
+        else:
+            self_hidden = self.self_attention(input, key, value)
+            self_hidden = self.feed_forward(self_hidden)
+            sim_hidden  = self.sim_attention(input, key, value, mask=mask)
+            beta = self.gate(torch.cat((self_hidden, sim_hidden), dim=-1))
+            output = self_hidden - beta * sim_hidden
 
-    def forward(self, input, key, value, mask=None, print_prob=None):
+        return output
 
-        """
-        self_hidden = self.self_attention(input, key, value)
-        sim_hidden  = self.sim_attention(input, key, value, mask=mask, print_prob=print_prob)
-        output      = self.feed_forward(
-            torch.cat((self_hidden, sim_hidden), dim=-1))
-        """
-
-        self_hidden = self.self_attention(input, key, value)
-        self_hidden = self.feed_forward(self_hidden)
-        sim_hidden  = self.sim_attention(input, key, value, mask=mask, print_prob=print_prob)
-
-        gate_prob = self.gate(torch.cat((self_hidden, sim_hidden), dim=-1))
-
-        output = self_hidden - gate_prob * sim_hidden
-
-        """
-        output = self.self_attention(input, key, value)
-        output = self.feed_forward(output)
-        return output, output, output, output
-        """
-
-        """
-        if print_prob is not None:
-            out_print = input[print_prob][:20].tolist()
-            print([('%.3f' % x) for x in out_print])
-        """
-
-        return output, output, self_hidden, gate_prob
 
 class Encoder(nn.Module):
+    '''
+        Text encoder
+    '''
 
     def __init__(self, vocab_size, embed_size, hidden_size, padding_idx,
             max_instr_len, layer_fn, num_layers, dropout):
@@ -243,6 +247,9 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
+    '''
+        Generic decoder (can be used as both inter and intra decoders)
+    '''
 
     def __init__(self, input_size, hidden_size, layer_fn, num_layers, dropout):
 
@@ -266,11 +273,6 @@ class Decoder(nn.Module):
             for _ in range(len(self.layers))]
 
     def forward(self, input, time, *args, **kwargs):
-
-        if kwargs['print_prob'] is not None:
-            print_prob = kwargs['print_prob']
-            out_print = input[print_prob][-20:].tolist()
-            print([('%.3f' % x) for x in out_print])
 
         input = self.dropout(self.embedding(input) + time)
 
@@ -316,7 +318,7 @@ class Seq2SeqModel(nn.Module):
             num_layers,
             dropout)
 
-        # Text decoder
+        # Inter-task decoder
         text_decoder_layer_fn = lambda input_size, mem_size: TextDecoderLayer(
             input_size, mem_size, hidden_size, attention_heads, dropout)
 
@@ -334,9 +336,9 @@ class Seq2SeqModel(nn.Module):
         self.next_visual_attention = dc(visual_attention)
         self.goal_visual_attention = dc(visual_attention)
 
-        # State decoder
+        # Intra-task decoder
         state_decoder_layer_fn = lambda input_size, mem_size: StateDecoderLayer(
-            input_size, mem_size, hidden_size, attention_heads, dropout)
+            input_size, mem_size, hidden_size, attention_heads, dropout, hparams)
 
         self.state_decoder = Decoder(
             state_size,
@@ -376,6 +378,10 @@ class Seq2SeqModel(nn.Module):
         return scene, goal_sim
 
     def match_view(self, view_a, view_b):
+        '''
+            Compute a vector representing how similar the current view is to
+                the goal view.
+        '''
         dot_product = torch.bmm(view_a, view_b.transpose(1, 2))
         view_a_norm = torch.norm(view_a, p=2, dim=2)
         view_b_norm = torch.norm(view_b, p=2, dim=2)
@@ -388,6 +394,9 @@ class Seq2SeqModel(nn.Module):
 
     def decode_text(self, input, text_ctx, text_ctx_mask,
             curr_view_features, goal_view_features, print_prob=None):
+        '''
+            Take an inter-task decoding step
+        '''
 
         hidden, output = self.text_decoder(input, self.local_time, text_ctx,
             text_ctx_mask, print_prob=print_prob)
@@ -400,9 +409,14 @@ class Seq2SeqModel(nn.Module):
 
         return output, c_next, c_goal
 
-    def decode_state(self, input, mask=None, print_prob=None):
-        output = self.state_decoder(input, self.global_time, mask=mask, print_prob=print_prob)
+    def decode_state(self, input, mask=None):
+        '''
+            Take an intra-task decoding step
+        '''
+
+        output = self.state_decoder(input, self.global_time, mask=mask)
         self.global_time = self.global_time_embedding(self.local_time)
+
         return output
 
     def encode(self, seq, seq_mask):
@@ -465,7 +479,7 @@ class NavModule(Seq2SeqModel):
 
         state_input = torch.cat(
             text_output + (goal_sim,), dim=-1)
-        state_output,_,_,_ = self.decode_state(state_input)
+        state_output = self.decode_state(state_input)
 
         logit = self.predictor(state_output, a_embeds)
         logit.data.masked_fill_(logit_mask, -float('inf'))
@@ -497,27 +511,19 @@ class AskModule(Seq2SeqModel):
         num_reason_labels = len(AskTeacher.reason_labels)
         self.reason_predictor = nn.Linear(hidden_size, num_reason_labels)
 
-        """
-        self.predictor = nn.Sequential(
-            nn.Sigmoid(),
-            nn.Linear(num_reason_labels, 10),
-            nn.ReLU(),
-            nn.Linear(10, agent_class.n_output_ask_actions())
-        )
-        """
-
-        self.predictor = nn.Linear(
-            num_reason_labels, agent_class.n_output_ask_actions())
-
-        """
-        self.predictor = nn.Linear(
-            hidden_size, agent_class.n_output_ask_actions())
-        """
+        if hparams.no_reason:
+            self.predictor = nn.Linear(
+                hidden_size, agent_class.n_output_ask_actions())
+        else:
+            self.predictor = nn.Linear(
+                num_reason_labels, agent_class.n_output_ask_actions())
 
         self.start_action = torch.ones(1, dtype=torch.long, device=device) * \
             agent_class.ask_actions.index('<start>')
 
         self.init_action_mask = torch.ones(1, dtype=torch.uint8, device=device)
+
+        self.hparams = hparams
 
     def reset(self, batch_size):
         super(AskModule, self).reset(batch_size)
@@ -530,8 +536,7 @@ class AskModule(Seq2SeqModel):
         return self.start_action.expand(batch_size)
 
     def decode(self, local_time, global_time, prev_a, nav_dist, text_ctx,
-            text_ctx_mask, curr_view_features, goal_view_features, logit_mask,
-            print_prob=None):
+            text_ctx_mask, curr_view_features, goal_view_features, logit_mask):
 
         scene, goal_sim = self.compute_features(
             curr_view_features, goal_view_features)
@@ -547,27 +552,14 @@ class AskModule(Seq2SeqModel):
             text_output + (goal_sim, nav_dist), dim=-1)
 
         mask = torch.stack(self.action_mask).transpose(0, 1).contiguous()
-        state_output, _, state_hidden, gate_prob = self.decode_state(state_input, mask=mask, print_prob=print_prob)
+        state_output = self.decode_state(state_input, mask=mask)
 
-        """
-        tmp = self.reason_predictor(state_hidden)
-        print(tmp[print_prob].tolist())
-        tmp = self.reason_predictor(gate_prob)
-        print(tmp[print_prob].tolist())
-        """
-
-        reason_logit = self.reason_predictor(state_output)
-        logit = self.predictor(reason_logit)
-
-        """
-        reason_logit = self.reason_predictor(state_output)
-        logit = self.predictor(state_output)
-        """
-
-
-        """
-        logit = self.predictor(reason_logit.detach())
-        """
+        if self.hparams.no_reason:
+            reason_logit = self.reason_predictor(state_output)
+            logit = self.predictor(state_output)
+        else:
+            reason_logit = self.reason_predictor(state_output)
+            logit = self.predictor(reason_logit)
 
         logit.data.masked_fill_(logit_mask, -float('inf'))
 

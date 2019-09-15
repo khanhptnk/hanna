@@ -28,22 +28,19 @@ class AskAgent(BaseAgent):
         super(AskAgent, self).__init__()
 
         self.model = model
+
+        # Losses
         self.nav_criterion = nn.CrossEntropyLoss(ignore_index=-1)
         self.ask_criterion = nn.CrossEntropyLoss(ignore_index=-1)
         self.ask_reason_criterion = nn.BCEWithLogitsLoss(reduction='none')
 
+        # Oracles
         self.env_oracle = make_oracle('env_oracle', hparams.scan_path)
         self.anna = make_oracle('anna', hparams, self.env_oracle)
         self.teacher = make_oracle('teacher', hparams, self.ask_actions,
             self.env_oracle, self.anna)
 
         self.device = device
-
-        self.random = random
-        self.random.seed(hparams.seed)
-
-        self.max_instr_len = hparams.max_instr_len
-        self.double_request_budget_every = hparams.double_request_budget_every
 
         self.instr_padding_idx = hparams.instr_padding_idx
         self.ask_baseline = hparams.ask_baseline
@@ -54,13 +51,8 @@ class AskAgent(BaseAgent):
         if hasattr(hparams, 'perfect_interpretation') and hparams.perfect_interpretation:
             self.perfect_interpretation = True
 
-        self.bc_iters   = hparams.bc_iters
-        self.bcui_iters = hparams.bcui_iters
-
         self.from_numpy = lambda array: \
             torch.from_numpy(array).to(self.device)
-
-        self.alpha = hparams.alpha
 
         self.hparams = hparams
 
@@ -86,7 +78,7 @@ class AskAgent(BaseAgent):
             seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]
 
             max_length = max(seq_lengths)
-            assert max_length <= self.max_instr_len
+            assert max_length <= self.hparams.max_instr_len
 
             seq_tensor  = self.from_numpy(seq_tensor).long()[:,:max_length]
             seq_lengths = self.from_numpy(seq_lengths).long()
@@ -101,8 +93,6 @@ class AskAgent(BaseAgent):
             if self.instruction_baseline == 'vision_only' and ob['mode'] == 'on_route':
                 instruction = ''
             nav_seq_list.append(self.env.encode(instruction))
-
-        #nav_seq_list = [self.env.encode(ob['instruction']) for ob in obs]
 
         return encode_batch(nav_seq_list)
 
@@ -132,10 +122,9 @@ class AskAgent(BaseAgent):
         return self.from_numpy(action_embeds), self.from_numpy(invalid)
 
     def _ask_action_variable(self, obs):
-        # Action masking
-        ask_logit_mask = torch.zeros(
-            self.batch_size, AskAgent.n_output_ask_actions(), dtype=torch.uint8,
-            device=self.device)
+        ask_logit_mask = torch.zeros(self.batch_size,
+            AskAgent.n_output_ask_actions(),
+            dtype=torch.uint8, device=self.device)
 
         ask_mask_indices = []
         for i, ob in enumerate(obs):
@@ -165,8 +154,6 @@ class AskAgent(BaseAgent):
             if is_good:
                 break
 
-        #print(sample[23].tolist(), logit[23].tolist())
-
         return sample
 
     def _next_action(self, logit, feedback):
@@ -181,25 +168,15 @@ class AskAgent(BaseAgent):
         nav_softmax_full = np.zeros((self.batch_size,
             AskAgent.n_output_nav_actions()), dtype=np.float32)
         for i, ob in enumerate(obs):
-            """
-            if i == print_prob:
-                print(nav_softmax[i])
-            """
             for p, adj_dict in zip(nav_softmax[i], ob['adj_loc_list']):
                 k = adj_dict['relViewIndex']
                 nav_softmax_full[i, k] += p
-                """
-                if i == print_prob:
-                    print(k, p, adj_dict['absViewIndex'])
-                """
-        #print(print_prob, nav_softmax_full[print_prob,:].tolist())
         return self.from_numpy(nav_softmax_full)
 
     def _compute_loss(self):
 
         self.loss = self.nav_loss + self.ask_loss
         self.losses.append(self.loss.item() / self.episode_len)
-        #print(self.loss.item())
 
         self.nav_losses.append(self.nav_loss.item() / self.episode_len)
         self.ask_losses.append(self.ask_loss.item() / self.episode_len)
@@ -223,27 +200,14 @@ class AskAgent(BaseAgent):
         self.is_eval = True
         self._setup(env, feedback)
         self.model.eval()
-        self.env.max_queries = 1000
-
-        self.bc = self.bcui = False
 
         if hasattr(self, 'perfect_interpretation') and self.perfect_interpretation:
             self.bcui = True
-        """
-        if hasattr(self.hparams, 'ask_every_iters') and iter < self.hparams.ask_every_iters:
-            self.ask_baseline = 'ask_every,5'
-            self.teacher.ask_oracle.ask_every = 5
-        else:
-            self.ask_baseline = self.hparams.ask_baseline
-            self.teacher.ask_oracle.ask_every = 0
-        """
 
         self.episode_len = self.hparams.eval_episode_len
 
         self.anna.is_eval = True
-        if '_seen_anna' in env_name:
-            self.anna.split_name = 'train_seen'
-        elif '_unseen_anna' in env_name:
+        if '_unseen_anna' in env_name:
             self.anna.split_name = 'train_unseen'
         elif env_name == 'val_unseen':
             self.anna.split_name = 'val'
@@ -268,33 +232,12 @@ class AskAgent(BaseAgent):
 
         last_traj = []
         for iter in range(start_iter, end_iter + 1):
-            #print(iter)
             optimizer.zero_grad()
-
-            """
-            self.env.max_queries = min(
-                100, 2 ** (iter // self.double_request_budget_every))
-            """
-            self.env.max_queries = 1000
-
-            self.bc   = iter < self.bc_iters
-            self.bcui = iter < self.bcui_iters
-
-            """
-            if iter < self.hparams.ask_every_iters:
-                self.ask_baseline = 'ask_every,5'
-                self.teacher.ask_oracle.ask_every = 5
-            else:
-                self.ask_baseline = self.hparams.ask_baseline
-                self.teacher.ask_oracle.ask_every = 0
-            """
-
             traj = self.rollout()
             if end_iter - iter + 1 <= 10:
                 last_traj.extend(traj)
             self.loss.backward()
             optimizer.step()
-            #torch.cuda.empty_cache()
 
         return last_traj
 
@@ -308,11 +251,9 @@ class SimpleAgent(BaseAgent):
         self.random.seed(hparams.seed)
         self.episode_len = hparams.eval_episode_len
 
-        self.random_agent = hparams.random_agent
-        self.forward_agent = hparams.forward_agent
-        self.shortest_agent = hparams.shortest_agent
+        self.hparams = hparams
 
-        if self.shortest_agent:
+        if self.hparams.shortest_agent:
             self.env_oracle = make_oracle('env_oracle', hparams.scan_path)
             self.nav_teacher = make_oracle('nav', self.env_oracle)
 
@@ -342,18 +283,16 @@ class SimpleAgent(BaseAgent):
         ended = [False] * batch_size
 
         for time_step in range(self.episode_len):
-
             nav_a_list = [None] * batch_size
-
-            if self.shortest_agent:
+            if self.hparams.shortest_agent:
                 nav_a_list = self.nav_teacher(obs)
             else:
                 for i, ob in enumerate(obs):
-                    if self.random_agent:
+                    if self.hparams.random_agent:
                         nav_a_list[i] = self.random.randint(
                             0, len(ob['adj_loc_list']) - 1)
                     else:
-                        assert self.forward_agent
+                        assert self.hparams.forward_agent
                         if len(ob['adj_loc_list']) > 1 and time_step < 10:
                             nav_a_list[i] = 1
                         else:

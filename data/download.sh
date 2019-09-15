@@ -7,8 +7,8 @@ git clone --recursive https://github.com/peteanderson80/Matterport3DSimulator.gi
 cp -r Matterport3DSimulator/connectivity . 
 yes | rm -rf Matterport3DSimulator
 
-wget -O anna_data.zip https://www.dropbox.com/s/bc9y43qj1014hic/anna_data.zip?dl=1
-unzip anna_data.zip
+wget -O hanna_data.zip https://www.dropbox.com/s/qfahoe22vh1cdhn/hanna_data.zip?dl=1
+unzip hanna_data.zip
 
 #mkdir img_features
 #cd img_features

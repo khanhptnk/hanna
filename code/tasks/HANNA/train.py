@@ -176,6 +176,7 @@ def train(train_env, val_envs, agent, model, optimizer, start_iter, end_iter,
         if eval_mode:
             loss_str = '\n * Eval mode'
         else:
+            # Train "interval" iterations
             traj = agent.train(
                 train_env, optimizer, idx, idx + interval - 1, train_feedback)
 
@@ -186,7 +187,6 @@ def train(train_env, val_envs, agent, model, optimizer, start_iter, end_iter,
             loss_str = '\n * train loss: %.4f' % train_loss_avg
             loss_str += compute_ask_stats(agent, traj)
 
-        # Run validation
         metrics = defaultdict(dict)
         should_save_ckpt = []
 
@@ -195,13 +195,15 @@ def train(train_env, val_envs, agent, model, optimizer, start_iter, end_iter,
 
             loss_str += '\n * %s' % env_name.upper()
 
-            # Get validation distance from goal under test evaluation conditions
+            # Evaluation
             with torch.no_grad():
                 traj = agent.test(env_name, env, test_feedback, idx + interval - 1)
 
             agent.results_path = os.path.join(hparams.exp_dir,
                 '%s_%s_for_eval.json' % (hparams.exp_name, env_name))
             agent.write_results(traj)
+
+            # Compute metrics
             score_summary, _, is_success = evaluator.score(agent.results_path)
             agent.add_is_success(is_success)
             agent.write_results(traj)
@@ -220,6 +222,7 @@ def train(train_env, val_envs, agent, model, optimizer, start_iter, end_iter,
                     'oracle_spl', 'target_success_rate']:
                     loss_str += ', %s: %.2f' % (metric, val * 100)
 
+            # Add info to log string
             loss_str += '\n --- OTHER METRICS: '
             loss_str += '%s: %.2f' % ('error', score_summary['error'])
             loss_str += ', %s: %.2f' % ('oracle_error', score_summary['oracle_error'])
@@ -229,6 +232,7 @@ def train(train_env, val_envs, agent, model, optimizer, start_iter, end_iter,
                 loss_str += compute_ask_stats(agent, traj)
 
             main_metric_value = metrics[main_metric][env_name][0]
+            # Add best models to save list
             if not eval_mode and main_metric_value > best_metrics[env_name]:
                 should_save_ckpt.append(env_name)
                 best_metrics[env_name] = main_metric_value
@@ -265,9 +269,9 @@ def train(train_env, val_envs, agent, model, optimizer, start_iter, end_iter,
                     param_group['lr'] *= hparams.lr_decay_rate
                     print('New learning rate %f' % param_group['lr'])
 
-            # Save lastest model
             should_save_ckpt.append('last')
 
+            # Save models
             for env_name in should_save_ckpt:
                 save_path = os.path.join(hparams.exp_dir,
                     '%s_%s.ckpt' % (hparams.exp_name, env_name))
@@ -282,10 +286,10 @@ def train(train_env, val_envs, agent, model, optimizer, start_iter, end_iter,
 def train_val(seed=None):
     ''' Train on the training set, and validate on seen and unseen splits. '''
 
-    # which GPU to use
+    # Set which GPU to use
     device = torch.device('cuda', hparams.device_id)
 
-    # Resume from lastest checkpoint (if any)
+    # Load hyperparameters from checkpoint (if exists)
     if os.path.exists(hparams.load_path):
         print('Load model from %s' % hparams.load_path)
         ckpt = load(hparams.load_path, device)
@@ -301,12 +305,13 @@ def train_val(seed=None):
     if seed is not None:
         hparams.seed = seed
 
+    # Set random seeds
     torch.manual_seed(hparams.seed)
     torch.cuda.manual_seed(hparams.seed)
     np.random.seed(hparams.seed)
     random.seed(hparams.seed)
 
-    # Create a batch training environment that will also preprocess text
+    # Create or load vocab
     train_vocab_path = os.path.join(hparams.data_path, 'vocab.txt')
     if not os.path.exists(train_vocab_path):
         raise Exception('Vocab file not found at %s' % train_vocab_path)
@@ -316,6 +321,8 @@ def train_val(seed=None):
     tokenizer = Tokenizer(vocab=vocab, encoding_length=hparams.max_instr_len)
     featurizer = ImageFeatures(hparams.img_features, device)
     simulator = Simulator(hparams)
+
+    # Create train environment
     train_env = Batch(hparams, simulator, featurizer, tokenizer, split='train')
 
     # Create validation environments
@@ -329,9 +336,9 @@ def train_val(seed=None):
         else:
             val_splits = ['test_seen', 'test_unseen']
         end_iter = start_iter + 1
-    if hparams.debug:
+
+    if hparams.eval_on_val:
         val_splits = [x.replace('test_', 'val_') for x in val_splits]
-    #val_splits = ['test_unseen']
 
     val_envs_tmp = { split: (
         Batch(hparams, simulator, featurizer, tokenizer, split=split),
@@ -341,30 +348,20 @@ def train_val(seed=None):
     val_envs = {}
     for key, value in val_envs_tmp.items():
         if '_seen' in key:
-            if eval_mode:
-                if '_env_unseen_anna' in hparams.load_path:
-                    val_envs[key + '_env_unseen_anna']   = value
-                elif '_env_seen_anna' in hparams.load_path:
-                    val_envs[key + '_env_seen_anna'] = value
-                else:
-                    #val_envs[key + '_env_seen_anna']   = value
-                    val_envs[key + '_env_unseen_anna'] = value
-            else:
-                #val_envs[key + '_env_seen_anna']   = value
-                val_envs[key + '_env_unseen_anna'] = value
+            val_envs[key + '_env_unseen_anna'] = value
         else:
             assert '_unseen' in key
             val_envs[key] = value
 
-    # Build models and train
+    # Build model and optimizer
     model = AgentModel(len(vocab), hparams, device).to(device)
-
     optimizer = optim.Adam(model.parameters(), lr=hparams.lr,
         weight_decay=hparams.weight_decay)
 
     best_metrics = { env_name  : -1 for env_name in val_envs.keys() }
     best_metrics['combined'] = -1
 
+    # Load model paramters from checkpoint (if exists)
     if ckpt is not None:
         model.load_state_dict(ckpt['model_state_dict'])
         optimizer.load_state_dict(ckpt['optim_state_dict'])
@@ -374,11 +371,6 @@ def train_val(seed=None):
     if hparams.log_every == -1:
         hparams.log_every = round(len(train_env.data) / \
             (hparams.batch_size * 100)) * 100
-
-    if not eval_mode:
-        hparams.bc_iters   = hparams.log_every * hparams.bc_epochs
-        hparams.bcui_iters = hparams.log_every * hparams.bcui_epochs
-        #hparams.ask_every_iters = hparams.log_every * hparams.ask_every_epochs
 
     print('')
     pprint(vars(hparams), width=1)

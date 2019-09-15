@@ -65,7 +65,8 @@ $ sudo -E bash scripts/run_docker_graphics.sh
 ~/mount/hanna/code# python src/driver/driver.py
 ```
 
+A window
+
 <p align="center">
-<img src="../teaser/simulator.png" alt="IMAGE ALT TEXT HERE" width="1000" border="10"/>
-An example HANNA task.
+<img src="../teaser/simulator.png" alt="IMAGE ALT TEXT HERE" width="500" border="10"/>
 </p>

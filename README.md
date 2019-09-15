@@ -6,6 +6,13 @@ Authors: [Khanh Nguyen](https://khanhptnk.github.io), [Hal Daumé III](http://us
 
 This repo contains code and data-downloading scripts for the paper [Help, Anna! Visual Navigation with Natural Multimodal Assistance via Retrospective Curiosity-Encouraging Imitation Learning](https://arxiv.org/abs/1909.01871) (EMNLP 2019). We develop *Help, Anna!* (HANNA), an interactive photo-realistic simulator in which an agent fulfills object-finding tasks by requesting and interpreting natural language-and-vision assistance.
 
+### What are the differences between HANNA and other photo-realistic visual navigation tasks?
+
+<p align="center">
+<img src="teaser/difference.png" alt="IMAGE ALT TEXT HERE" width="500" border="10"/>
+ <figcaption>Comparison HANNA with VLN <a href="https://arxiv.org/abs/1711.07280">(Anderson et al., 2018b)</a>, VNLA <a href="https://arxiv.org/abs/1812.04155">(Nguyen et al., 2019)</a>, CVDN <a href="https://arxiv.org/abs/1907.04957">(Thomason et al., 2019)</a>.</figcaption>
+</p>
+
 ### System requirements
 
 The environment simulator is installed and runs on a Docker image. Please install:
@@ -22,12 +29,7 @@ You can also install the simulator [without source code](https://github.com/pete
 2. [Setup simulator](https://github.com/khanhptnk/hanna-private/tree/master/code). 
 3. [Run experiments](https://github.com/khanhptnk/hanna-private/tree/master/code/tasks/HANNA). 
 
-### What are the differences between this task and other photo-realistic visual navigation tasks?
 
-<p align="center">
-<img src="teaser/difference.png" 
-alt="IMAGE ALT TEXT HERE" width="500" border="10"/>
-</p>
 
 ### Citation
 

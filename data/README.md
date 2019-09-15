@@ -21,7 +21,7 @@ We provide the script `unzip_matterport.sh` in this directory to help you unzip 
 ```
 $ bash unzip_matterport $MATTERPORT_DATA_DIR $file_type
 ```
-where `$file_type` is either `matterport_skybox_images` or `undistorted_camera_parameters`.
+where `$file_type` is a file type (e.g., `matterport_skybox_images` or `undistorted_camera_parameters`).
 
 Next: [Setup simulators](https://github.com/debadeepta/learningtoask/tree/master/code)
 

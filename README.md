@@ -26,9 +26,7 @@ Comparison HANNA with VLN <a href="https://arxiv.org/abs/1711.07280">(Anderson e
 
 ## Let's play with HANNA!
 
-HANNA extends the [Matterport3D simulator](https://github.com/peteanderson80/Matterport3DSimulator). 
-
-HANNA is installed and runs on a Docker image. It requires the following tools installed:
+HANNA extends the [Matterport3D simulator](https://github.com/peteanderson80/Matterport3DSimulator). It is installed and runs on a Docker image. It requires the following tools installed:
 * [docker](https://docs.docker.com/install/)
 * [nvidia-docker 2.0](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0))
 

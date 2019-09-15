@@ -1,5 +1,3 @@
-''' Agents: stop/random/shortest/seq2seq  '''
-
 from __future__ import division
 
 import json

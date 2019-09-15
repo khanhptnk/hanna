@@ -24,7 +24,7 @@ You can also install the simulator [without source code](https://github.com/pete
 
 ### What are the differences between this task and other photo-realistic visual navigation tasks?
 
-![](teaser/difference.png=300x)
+![](teaser/difference.png =300x)
 
 ### Citation
 

@@ -64,3 +64,8 @@ $ sudo -E bash scripts/run_docker_graphics.sh
 ~/mount/hanna/code# export QT_X11_NO_MITSHM=1
 ~/mount/hanna/code# python src/driver/driver.py
 ```
+
+<p align="center">
+<img src="../teaser/simulator.png" alt="IMAGE ALT TEXT HERE" width="1000" border="10"/>
+An example HANNA task.
+</p>

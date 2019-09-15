@@ -19,7 +19,7 @@ Running in graphics mode is still useful for debugging and visualizing the agent
 
 We provide the script `unzip_matterport.sh` in this directory to help you unzip the data:
 ```
-$ bash unzip_matterport $MATTERPORT_DATA_DIR $file_type
+$ bash unzip_matterport.sh $MATTERPORT_DATA_DIR $file_type
 ```
 where `$file_type` is a file type (e.g., `matterport_skybox_images` or `undistorted_camera_parameters`).
 

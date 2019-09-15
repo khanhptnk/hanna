@@ -23,6 +23,6 @@ $ bash unzip_matterport.sh $MATTERPORT_DATA_DIR $file_type
 ```
 where `$file_type` is a file type (e.g., `matterport_skybox_images` or `undistorted_camera_parameters`).
 
-**Next: [Setup simulators](https://github.com/khanhptnk/hanna-private/tree/master/code)**
+**Next: [Setup simulator](https://github.com/khanhptnk/hanna-private/tree/master/code)**
 
 

@@ -4,7 +4,9 @@
 
 Authors: [Khanh Nguyen](https://khanhptnk.github.io), [Hal Daumé III](http://users.umiacs.umd.edu/~hal/)
 
-This repo contains code and data-downloading scripts for the paper [Help, Anna! Visual Navigation with Natural Multimodal Assistance via Retrospective Curiosity-Encouraging Imitation Learning](https://arxiv.org/abs/1909.01871) (EMNLP 2019). We develop *Help, Anna!* (HANNA), an interactive photo-realistic simulator in which an agent fulfills object-finding tasks by requesting and interpreting natural language-and-vision assistance.
+## What is HANNA?
+
+HANNA is an interactive photo-realistic simulator that mimics an agent fulfilling object-finding tasks with only first-person visual input by requesting and interpreting natural language-and-vision assistance.
 
 <p align="center">
 <img src="teaser/example.png" alt="IMAGE ALT TEXT HERE" width="1000" border="10"/>

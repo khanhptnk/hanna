@@ -1,7 +1,5 @@
 ### 1. Download ANNA dataset:
 
-To download data, run
-
 ```
 $ bash download.sh
 ```

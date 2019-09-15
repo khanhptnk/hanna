@@ -34,5 +34,13 @@ $ sudo -E bash scripts/run_docker_graphics.sh
 
 Inside the Docker image, run
 ```
-root@66a410498bfb:~/mount/hanna/code# bash scripts/setup.sh
+~/mount/hanna/code# bash scripts/setup.sh
 ```
+
+4. Test the simulator
+
+```
+~/mount/hanna/code# python scripts/test_api.py
+```
+
+Please make sure that the code runs without errors. 

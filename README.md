@@ -8,7 +8,7 @@ This repo contains code and data-downloading scripts for the paper [Help, Anna! 
 
 ### System requirements
 
-The environment simulator is installed and runs on Docker. Please install:
+The environment simulator is installed and runs on a Docker image. Please install:
 
 * [docker](https://docs.docker.com/install/)
 * [nvidia-docker 2.0](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0))

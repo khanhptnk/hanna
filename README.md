@@ -24,7 +24,7 @@ You can also install the simulator [without source code](https://github.com/pete
 
 ### Citation
 
-If you want to cite this work, please use the following bibtex code
+If you use the code or data in this repo, please cite our paper using the following bibtex code
 
 ```
 @inproceedings{nguyen2019hanna,

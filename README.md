@@ -24,16 +24,15 @@ An example HANNA task.
 Comparison HANNA with VLN <a href="https://arxiv.org/abs/1711.07280">(Anderson et al., 2018b)</a>, EQA <a href="https://arxiv.org/abs/1904.03461">(Wijmans et al., 2019)</a>, VNLA <a href="https://arxiv.org/abs/1812.04155">(Nguyen et al., 2019)</a>, CVDN <a href="https://arxiv.org/abs/1907.04957">(Thomason et al., 2019)</a>.
 </p>
 
-## System requirements
+## Let's play with HANNA!
 
-The environment simulator is installed and runs on a Docker image. Please install:
+HANNA extends the [Matterport3D simulator](https://github.com/peteanderson80/Matterport3DSimulator). 
 
+HANNA is installed and runs on a Docker image. It requires the following tools installed:
 * [docker](https://docs.docker.com/install/)
 * [nvidia-docker 2.0](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0))
 
 You can also install the simulator [without source code](https://github.com/peteanderson80/Matterport3DSimulator#building-without-docker) but it is not recommended!
-
-## Let's get started!
 
 0. `git clone --recursive https://github.com/khanhptnk/hanna-private.git` (don't forget the `recursive` flag!)
 1. [Download data](https://github.com/khanhptnk/hanna-private/tree/master/data). 

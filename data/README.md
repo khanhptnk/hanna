@@ -25,3 +25,17 @@ where `$file_type` is a file type (e.g., `matterport_skybox_images` or `undistor
 
 Next: [Setup simulators](https://github.com/debadeepta/learningtoask/tree/master/code)
 
+### Citation
+
+If you want to cite this work, please use the following bibtex code
+
+```
+@InProceedings{nguyen2019hanna,
+author = {Nguyen, Khanh and Daum{\'e} III, Hal},
+title = {Help, Anna! Visual Navigation with Natural Multimodal Assistance via Retrospective Curiosity-Encouraging Imitation Learning},
+booktitle = {Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+month = {November},
+year = {2019},
+url = {https://arxiv.org/abs/1909.01871}
+}
+```

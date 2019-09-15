@@ -26,7 +26,7 @@ You can also install the simulator [without source code](https://github.com/pete
 
 <p align="center">
 <img src="teaser/difference.png" 
-alt="IMAGE ALT TEXT HERE" width="300" border="10"/>
+alt="IMAGE ALT TEXT HERE" width="500" border="10"/>
 </p>
 
 ### Citation

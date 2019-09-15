@@ -24,8 +24,10 @@ You can also install the simulator [without source code](https://github.com/pete
 
 ### What are the differences between this task and other photo-realistic visual navigation tasks?
 
+<p align="center">
 <img src="teaser/difference.png" 
 alt="IMAGE ALT TEXT HERE" width="300" border="10"/>
+</p>
 
 ### Citation
 

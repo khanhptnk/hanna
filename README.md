@@ -8,7 +8,7 @@ This repo contains code and data-downloading scripts for the paper [Help, Anna! 
 
 <p align="center">
 <img src="teaser/example.png" alt="IMAGE ALT TEXT HERE" width="1000" border="10"/>
-<figcaption>An example HANNA task.</figcaption>
+<figcaption align="center"> An example HANNA task.</figcaption>
 </p>
 
 

@@ -1,5 +1,5 @@
 
-Please first [download the data](https://github.com/khanhptnk/hanna-private/tree/master/data)
+**Please first [download the data](https://github.com/khanhptnk/hanna-private/tree/master/data)**
 
 HANNA extends the [Matterport3D simulator](https://github.com/peteanderson80/Matterport3DSimulator). It is easiest to setup on our pre-configured Docker image. If you want to setup with Docker, please make sure the following tools have been installed:
 * [docker](https://docs.docker.com/install/)

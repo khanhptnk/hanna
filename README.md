@@ -14,3 +14,10 @@ The environment simulator is installed and runs on a Docker image. Please instal
 * [nvidia-docker 2.0](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0))
 
 You can also install the simulator [without source code](https://github.com/peteanderson80/Matterport3DSimulator#building-without-docker) but it is not recommended!
+
+### Let's get started!
+
+0. Clone this repo `git clone --recursive https://github.com/khanhptnk/hanna-private.git` (don't forget the `recursive` flag!)
+1. [Download data](https://github.com/khanhptnk/hanna-private/tree/master/data). 
+2. [Setup simulator](https://github.com/khanhptnk/hanna-private/tree/master/code). 
+3. [Run experiments](https://github.com/khanhptnk/hanna-private/tree/master/code/tasks/HANNA). 

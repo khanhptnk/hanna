@@ -1,5 +1,5 @@
 
-Please first [download the data](https://github.com/khanhptnk/hanna-private/tree/master/data)
+**Please first [download the data](https://github.com/khanhptnk/hanna-private/tree/master/data)!**
 
 HANNA extends the [Matterport3D simulator](https://github.com/peteanderson80/Matterport3DSimulator). It is easiest to setup on our pre-configured Docker image. If you want to setup with Docker, please make sure the following tools have been installed:
 * [docker](https://docs.docker.com/install/)
@@ -61,11 +61,13 @@ Export `QT_X11_NO_MITSHM=1` may solve the problem
 After you successfully run the driver on the `Matterport3DSimulator` repo, run the driver on this repo as follows
 ```
 $ sudo -E bash scripts/run_docker_graphics.sh
-~/mount/hanna/code# export QT_X11_NO_MITSHM=1
 ~/mount/hanna/code# python src/driver/driver.py
 ```
 
+If everything is good, you will see a window popping up like this
+
 <p align="center">
-<img src="../teaser/simulator.png" alt="IMAGE ALT TEXT HERE" width="1000" border="10"/>
-An example HANNA task.
+<img src="../teaser/simulator.png" alt="IMAGE ALT TEXT HERE" width="500" border="10"/>
 </p>
+
+Then you may use the 'A', 'S', 'W', 'D' keys to change the camera angles and press the number keys to go to the corresponding next locations (shown on the view image).

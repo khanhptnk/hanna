@@ -24,7 +24,7 @@ You can also install the simulator [without source code](https://github.com/pete
 
 ### Let's get started!
 
-0. Clone this repo `git clone --recursive https://github.com/khanhptnk/hanna-private.git` (don't forget the `recursive` flag!)
+0. `git clone --recursive https://github.com/khanhptnk/hanna-private.git` (don't forget the `recursive` flag!)
 1. [Download data](https://github.com/khanhptnk/hanna-private/tree/master/data). 
 2. [Setup simulator](https://github.com/khanhptnk/hanna-private/tree/master/code). 
 3. [Run experiments](https://github.com/khanhptnk/hanna-private/tree/master/code/tasks/HANNA). 

@@ -13,7 +13,7 @@ The following directories will be created:
 
 Request access to the dataset [here](https://niessner.github.io/Matterport/). The dataset is for **non-commercial academic purposes** only. Please read and agree to the dataset's [terms and conditions](http://dovahkiin.stanford.edu/matterport/public/MP_TOS.pdf) and **put a link to them in your project repo** (as requested by the dataset's creators).
 
-Training and testing our models only require downloading the `house_segmentations` portion of the dataset. Unzip the files so that `$MATTERPORT_DATA_DIR/v1/scans/<scanId>/house_segmentations/panorama_to_region.txt` are present. 
+Training and testing our models only require downloading the `house_segmentations` portion of the dataset. Unzip the files so that `$MATTERPORT_DATA_DIR/<scanId>/house_segmentations/panorama_to_region.txt` are present. 
 
 Running in graphics mode is still useful for debugging and visualizing the agent behavior. You need to download the `matterport_skybox_images` and `undistorted_camera_parameters` portions and unzip the files so that `$MATTERPORT_DATA_DIR/<scanId>/matterport_skybox_images/*.jpg` and `$MATTERPORT_DATA_DIR/<scanId>/undistorted_camera_parameters/*.conf` files are present. 
 

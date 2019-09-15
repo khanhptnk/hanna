@@ -20,12 +20,12 @@ Export link to the Matterport3D root directory
 $ export MATTERPORT_DATA_DIR=<some_path>/v1/scans
 ```
 
-Without graphics
+Run the image without graphics
 ```
 $ sudo -E bash scripts/run_docker.sh
 ```
 
-With graphics
+Run the image with graphics
 ```
 $ sudo -E bash scripts/run_docker_graphics.sh
 ```

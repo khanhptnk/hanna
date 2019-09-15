@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y wget doxygen curl libjsoncpp-dev libepo
 RUN pip3 install torch==1.1.0 torchvision pandas networkx termcolor sklearn opencv-python
 RUN echo 'alias python="python3"' >> ~/.bashrc
 RUN echo 'cd root/mount/hanna/code' >> ~/.bashrc
+RUN echo 'export QT_X11_NO_MITSHM=1' >> ~/.bashrc
 RUN /bin/bash -c "source ~/.bashrc"
 
 #install latest cmake

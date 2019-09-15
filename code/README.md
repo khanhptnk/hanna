@@ -64,7 +64,7 @@ $ sudo -E bash scripts/run_docker_graphics.sh
 ~/mount/hanna/code# python src/driver/driver.py
 ```
 
-If everything is good, you will see the a window popping up like this
+If everything is good, you will see a window popping up like this
 
 <p align="center">
 <img src="../teaser/simulator.png" alt="IMAGE ALT TEXT HERE" width="500" border="10"/>

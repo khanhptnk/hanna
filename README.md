@@ -24,9 +24,10 @@ You can also install the simulator [without source code](https://github.com/pete
 
 ### What are the differences between this task and other photo-realistic visual navigation tasks?
 
-A: In R2R, the agent's task is given by a **detailed** language instruction (e.g., "Go the table, turn left, walk to the stairs, wait there"). The agent has to execute the instruction **without additional assistance**. 
-
-In VNLA (our task), the task is described as a **high-level end-goal** (the steps for accomplishing the task are _not_ described) (e.g., "Find a cup in the kitchen"). The agent is capable of **actively requesting additional assistance** (in the form of language subgoals) while trying to fulfill the task. 
+<p align="center">
+<img src="teaser/difference.png" 
+alt="IMAGE ALT TEXT HERE" width="300" border="10"/>
+</p>
 
 ### Citation
 

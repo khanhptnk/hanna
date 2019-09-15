@@ -7,12 +7,12 @@ HANNA extends the [Matterport3D simulator](https://github.com/peteanderson80/Mat
 
 You can also install HANNA without Docker (similar to [installing the Matterport3D simulator without Docker](https://github.com/peteanderson80/Matterport3DSimulator#building-without-docker)) but it would be complicated to resolve the dependency requirements!
 
-### Build Docker image
+### 1. Build Docker image
 ```
 $ sudo bash scripts/build_docker.sh
 ```
 
-### Run Docker image
+### 2. Run Docker image
 
 Export link to the Matterport3D root directory
 
@@ -25,14 +25,14 @@ Run the image without graphics
 $ sudo -E bash scripts/run_docker.sh
 ```
 
-### Build the simulator
+### 3. Build the simulator
 
 Inside the Docker image, run
 ```
 ~/mount/hanna/code# bash scripts/setup.sh
 ```
 
-### Test the simulator
+### 4. Test the simulator
 
 ```
 ~/mount/hanna/code# python scripts/test_api.py
@@ -40,7 +40,7 @@ Inside the Docker image, run
 
 Please make sure that the code runs without errors. 
 
-5. Run the graphical driver
+### 5. Run the graphical driver
 
 The graphical driver is useful for debugging. Follow the instructions of the [Matterport3D simulator](https://github.com/peteanderson80/Matterport3DSimulator) and make sure you are able to [run the driver](https://github.com/peteanderson80/Matterport3DSimulator#interactive-demo) on its repo. 
 

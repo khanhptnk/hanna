@@ -44,7 +44,7 @@ Please make sure that the code runs without errors.
 
 The graphical driver is useful for debugging. Follow the instructions of the [Matterport3D simulator](https://github.com/peteanderson80/Matterport3DSimulator) and make sure you are able to [run the driver](https://github.com/peteanderson80/Matterport3DSimulator#interactive-demo) on its repo. 
 
-NOTE: if you encounter error messages like this
+**NOTE**: if you encounter error messages like this
 ```
 X Error: BadShmSeg (invalid shared segment parameter) 128
   Extension:    130 (MIT-SHM)

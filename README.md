@@ -21,3 +21,17 @@ You can also install the simulator [without source code](https://github.com/pete
 1. [Download data](https://github.com/khanhptnk/hanna-private/tree/master/data). 
 2. [Setup simulator](https://github.com/khanhptnk/hanna-private/tree/master/code). 
 3. [Run experiments](https://github.com/khanhptnk/hanna-private/tree/master/code/tasks/HANNA). 
+
+### Citation
+
+If you want to cite this work, please use the following bibtex code
+
+```
+@inproceedings{nguyen2019hanna,
+  author = {Nguyen, Khanh and Daum{\'e} III, Hal},
+  title = {Help, Anna! Visual Navigation with Natural Multimodal Assistance via Retrospective Curiosity-Encouraging Imitation Learning},
+  booktitle = {Proceedings of the Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+  month = {November},
+  year = {2019},
+}
+```

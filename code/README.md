@@ -69,3 +69,5 @@ If everything is good, you will see a window popping up like this
 <p align="center">
 <img src="../teaser/simulator.png" alt="IMAGE ALT TEXT HERE" width="500" border="10"/>
 </p>
+
+Then you may use the 'A', 'S', 'W', 'D' keys to change the camera angle and press the number keys to go to the corresponding next locations (shown on the view image).

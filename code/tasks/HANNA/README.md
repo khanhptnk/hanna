@@ -37,7 +37,7 @@ Results will be saved to a `json` file and evaluated metrics will be printed to 
 $ python manual_score.py ${result_name}.json
 ```
 
-As the result files are generally very large and hard to view, we also provide you a `debug_tool.py` for better scrutinizing at the results
+As the result files are generally very large and hard to view, we also provide you a `debug_tool.py` for better scrutinizing the results
 ```
 $ python debug_tool.py ${result_name}.json
 Type 'random' or a task's instr_id to scrutinize result of the task

@@ -24,7 +24,7 @@ else
   exit 1                                                                        
 fi   
 
-extra="-eval_only 1 -load_path $model_path" 
+extra="-eval_only 1 -load_path $model_path -instruction_baseline vision_only" 
 
 
 command="python train.py -config $config_file -exp $out_dir $extra"

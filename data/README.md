@@ -5,9 +5,9 @@ $ bash download.sh
 ```
 
 The following directories will be created:
-* `anna`: ANNA dataset. Please read our paper for more details.
+* `hanna`: HANNA dataset. Please read our paper for more details.
 * `connectivity`: environment graphs.
-* `img_features`: precomputed image embeddings computed by ResNet (pretrained on ImageNet). 
+* `img_features`: precomputed image embeddings computed by ResNet-152 (pretrained on ImageNet, provided by courtesy of the [Matterport3D simulator](https://github.com/peteanderson80/Matterport3DSimulator)). 
 
 ### 2. Download Matterport3D dataset
 

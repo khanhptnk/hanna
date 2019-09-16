@@ -38,11 +38,6 @@ class AskAgent(BaseAgent):
 
         self.device = device
 
-        self.instr_padding_idx = hparams.instr_padding_idx
-        #self.ask_baseline = hparams.ask_baseline
-        #if hasattr(hparams, 'perfect_interpretation') and hparams.perfect_interpretation:
-        #    self.perfect_interpretation = True
-
         self.from_numpy = lambda array: \
             torch.from_numpy(array).to(self.device)
 
@@ -66,7 +61,7 @@ class AskAgent(BaseAgent):
 
         def encode_batch(seq_list):
             seq_tensor = np.array(seq_list)
-            seq_lengths = np.argmax(seq_tensor == self.instr_padding_idx, axis=1)
+            seq_lengths = np.argmax(seq_tensor == self.hparams.instr_padding_idx, axis=1)
             seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]
 
             max_length = max(seq_lengths)
@@ -75,7 +70,7 @@ class AskAgent(BaseAgent):
             seq_tensor  = self.from_numpy(seq_tensor).long()[:,:max_length]
             seq_lengths = self.from_numpy(seq_lengths).long()
 
-            seq_mask = (seq_tensor == self.instr_padding_idx)
+            seq_mask = (seq_tensor == self.hparams.instr_padding_idx)
 
             return seq_tensor, seq_mask
 
@@ -167,7 +162,6 @@ class AskAgent(BaseAgent):
     def _compute_loss(self):
         self.loss = self.nav_loss + self.ask_loss
         self.losses.append(self.loss.item() / self.episode_len)
-        print(self.loss.item())
 
         self.nav_losses.append(self.nav_loss.item() / self.episode_len)
         self.ask_losses.append(self.ask_loss.item() / self.episode_len)

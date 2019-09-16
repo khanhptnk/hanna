@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ANNA_DATA_DIR=$(realpath ../data)
+HANNA_DATA_DIR=$(realpath ../data)
 
 echo "Matterport3D data: $MATTERPORT_DATA_DIR"
 echo "HANNA data: $HANNA_DATA_DIR"

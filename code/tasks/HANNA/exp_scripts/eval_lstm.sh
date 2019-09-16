@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# > Evaluate LSTM-seq2seq baseline
+# > USAGE: bash eval_lstm.sh [split] 
+# >   - split must be 'seen_env' or 'unseen_all'
 
 source define_vars.sh
 
@@ -8,21 +12,20 @@ out_dir="seq2seq"
 split=$1
 model_path="${PT_OUTPUT_DIR}/${out_dir}/${out_dir}"
 
-if [ "$split" == "unseen_lang" ]
+if [ "$split" == "seen_env" ]
 then
   model_path="${model_path}_val_seen_env_unseen_anna.ckpt"
 elif [ "$split" == "unseen_all" ]
 then
   model_path="${model_path}_val_unseen.ckpt"
 else
-  echo "Split must be 'unseen_lang' or 'unseen_all'"
+  printf "ERROR: split must be 'seen_env' or 'unseen_all'!\n"  
   exit 1
 fi
 
 extra="-eval_only 1 -load_path $model_path"
 
-
-command="python -u train.py -config $config_file -exp $out_dir $extra"
+command="python train.py -config $config_file -exp $out_dir $extra"
 echo $command
-$command
+eval $command
 

@@ -14,16 +14,16 @@ cd ..
 
 exp_name=$1
 
-if [ "$exp_name" == "no_reason_0" ]
+if [ "$exp_name" == "no_reason" ]
 then
   extra="$extra -no_reason 1"
-elif [ "$exp_name" == "alpha_0" ]
+elif [ "$exp_name" == "no_curious" ]
 then
   extra="$extra -alpha 0"
-elif [ "$exp_name" == "no_sim_attend_0" ]                                        
+elif [ "$exp_name" == "no_sim_attend" ]                                        
 then                                                                            
   extra="$extra -no_sim_attend 1"     
-elif [ "$exp_name" == "no_reset_2" ]
+elif [ "$exp_name" == "no_reset_inter" ]
 then
   extra="$extra -no_reset_inter 1"
 else

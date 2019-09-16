@@ -14,7 +14,6 @@ import torch.nn.functional as F
 
 
 class BaseAgent(object):
-    ''' Base class for an R2R agent to generate and save trajectories. '''
 
     def __init__(self):
         random.seed(1)

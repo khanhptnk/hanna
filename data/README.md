@@ -11,7 +11,7 @@ The following directories will be created:
 
 ### 2. Download Matterport3D dataset
 
-Request access to the dataset [here](https://niessner.github.io/Matterport/). The dataset is for **non-commercial academic purposes** only. Please read and agree to the dataset's [terms and conditions](http://dovahkiin.stanford.edu/matterport/public/MP_TOS.pdf) and **put a link to them in your project repo** (as requested by the dataset's creators).
+Request access to the dataset [here](https://niessner.github.io/Matterport/). The dataset is for **non-commercial academic purposes** only. Please read and agree to the dataset's [terms and conditions](http://kaldir.vc.in.tum.de/matterport/MP_TOS.pdf) and **put a link to them in your project repo** (as requested by the dataset's creators).
 
 Training and testing our models only require downloading the `house_segmentations` portion of the dataset. Unzip the files so that `$MATTERPORT_DATA_DIR/<scanId>/house_segmentations/panorama_to_region.txt` are present. 
 

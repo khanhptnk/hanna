@@ -10,8 +10,6 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 
 from utils import load_nav_graphs
 
-
-
 def success_rate(data):
     radius = 2
     succ = []
@@ -154,7 +152,7 @@ def pred_reason_dist(data):
                 for x in reason:
                     cnt[x] += 1
     return cnt['lost'] / total * 100, cnt['uncertain_wrong'] / total * 100, \
-           cnt['asked_close'] / total * 100
+           cnt['already_asked'] / total * 100
 
 def true_reason_dist(data):
     total = 0
@@ -166,7 +164,7 @@ def true_reason_dist(data):
                 for x in reason:
                     cnt[x] += 1
     return cnt['lost'] / total * 100, cnt['uncertain_wrong'] / total * 100, \
-           cnt['asked_close'] / total * 100
+           cnt['already_asked'] / total * 100
 
 
 
@@ -175,7 +173,7 @@ data_path = '../../../data'
 graphs = {}
 distances = {}
 
-with open(os.path.join(data_path, 'anna/scan_split.json')) as f:
+with open(os.path.join(data_path, 'hanna/scan_split.json')) as f:
     scan_split = json.load(f)
 
 for split in ['train', 'val', 'test']:
@@ -195,43 +193,13 @@ print('Navigation error: %.2f' % navigation_error(data))
 print('Requests: %.1f' % num_requests(data))
 print('Nav mistake repeat: %.2f' % nav_mistake_repeat(data))
 print('Ask repeat: %.2f' % ask_repeat(data))
-for reason in ['lost', 'uncertain_wrong', 'asked_close']:
+for reason in ['lost', 'uncertain_wrong', 'already_asked']:
     print_values = (reason,) + reason_metrics(data, reason)
     print('%s metrics (A|P|R|F1): %.1f,%.1f,%.1f,%.1f' % print_values)
 print('Ask distribution: request %.0f nothing %.0f' % (ask_dist(data), 100 - ask_dist(data)))
 
 print('Pred Reason distribution: lost %.1f  uncertain_wrong %.1f  already_asked %.1f ' % pred_reason_dist(data))
 print('True Reason distribution: lost %.1f  uncertain_wrong %.1f  already_asked %.1f ' % true_reason_dist(data))
-errors = []
-
-tmp = []
-for item in data:
-    tmp.append(sum([x == 1 for x in item['agent_ask']]))
-    asked = False
-    last_m = None
-
-    assert len(item['message']) == len(item['agent_nav'])
-
-    for nav_a, ask_a, v, g, m in zip(item['agent_nav'], item['agent_ask'],
-        [p[0] for p in item['agent_pose']][1:], item['target_viewpoints'][:-1],
-        item['message']):
-
-        if asked and nav_a <= 0:
-            if last_m['start_node'] != last_m['depart_node']:
-                errors.append(distances[item['scan']][v][g[0]])
-            asked = False
-
-        if ask_a == 1:
-            asked = True
-            last_m = m
-
-    if asked:
-        errors.append(distances[item['scan']][item['agent_pose'][-1][0]][item['target_viewpoints'][-1][0]])
-
-cnt = [x <= 2.0 for x in errors]
-print('Subtask success rate %.2f' % (sum(cnt) / len(cnt) * 100))
-
-print(sum(tmp) / len(tmp))
 
 
 

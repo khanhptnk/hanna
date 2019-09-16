@@ -22,7 +22,7 @@ For example:
 # > USAGE: bash train_main.sh [device_id]
 ```
 
-The `device_id` (GPU id) argument is always optional. You can train our main model as follows
+The `device_id` (GPU id) argument is always optional. You can train our final agent as follows
 ```
 ~/mount/hanna/code/tasks/HANNA/exp_scripts# bash train_main.sh
 ```

@@ -1,6 +1,6 @@
 **Please first [setup the simulator](https://github.com/khanhptnk/hanna-private/tree/master/code)!**
 
-We provide the pre-trained model of our final agent [here]().
+We provide the pre-trained model of our final agent [here](https://www.dropbox.com/s/6b6yyr6dic6vu2c/hanna_main_pretrained.zip?dl=1).
 
 Scripts for reproducing results in [our EMNLP'19 paper](https://arxiv.org/abs/1909.01871) are in the `exp_scripts` directory. You need to run these scripts **inside the `exp_scripts` directory on the Docker image**.
 

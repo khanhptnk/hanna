@@ -71,3 +71,5 @@ If everything is good, you will see a window popping up like this
 </p>
 
 Then you may use the 'A', 'S', 'W', 'D' keys to change the camera angles and press the number keys to go to the corresponding next locations (shown on the view image).
+
+**Next: [Run experiments](https://github.com/khanhptnk/hanna-private/tree/master/code/tasks/HANNA)**

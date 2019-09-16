@@ -80,12 +80,6 @@ class Evaluation(object):
             goal = shortest_path[-1]
             final_pos = path[-1]
 
-            """
-            shortest_distance = min(shortest_distance,
-                self.distances[scan][start][goal])
-            error = min(error, self.distances[scan][final_pos][goal])
-            """
-
             if self.distances[scan][final_pos][goal] <= error:
                 error = self.distances[scan][final_pos][goal]
                 shortest_distance = self.distances[scan][start][goal]

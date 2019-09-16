@@ -213,9 +213,6 @@ class AskTeacher(object):
         if ob['ended']:
             return self.IGNORE, 'ended'
 
-        if ob['queries_unused'] <= 0:
-            return self.IGNORE, 'no_budget'
-
         scan = ob['scan']
         viewpoint = ob['viewpoint']
         if not self.anna.can_request(scan, viewpoint):
@@ -249,10 +246,6 @@ class AskTeacher(object):
             if ob['ended']:
                 ask_targets[i] = self.IGNORE
                 ask_reasons[i].append('ended')
-
-            if ob['queries_unused'] <= 0:
-                ask_targets[i] = self.IGNORE
-                ask_reasons[i].append('no_budget')
 
             viewpoint = ob['viewpoint']
             if not self.anna.can_request(scan, viewpoint):
@@ -405,20 +398,21 @@ class ANNA(object):
         self.cached_results = defaultdict(dict)
         self.split_name = None
         self.is_eval = None
-        self.instruction_baseline = hparams.instruction_baseline \
-            if hasattr(hparams, 'instruction_baseline') else None
+        #self.hparams = hparams
 
     def can_request(self, scan, viewpoint):
         return bool(self.requestable_points[scan][viewpoint])
 
     def get_result(self, results):
         result = results[0] if self.is_eval else self.random.choice(results)
-        if self.instruction_baseline == 'language_only':
+        """
+        if self.hparams.instruction_baseline == 'language_only':
             try:
                 instruction = result['instruction']
                 result['instruction'] = instruction[:instruction.index('.') + 1].rstrip()
             except ValueError:
                 pass
+        """
         return result
 
     def __call__(self, ob):

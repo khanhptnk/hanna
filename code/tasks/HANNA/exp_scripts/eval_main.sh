@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# > Evaluate final agent
+# > USAGE: bash eval_main.sh [split] [special_mode]
+# >   - split must be 'seen_env' or 'unseen_all'
+# >   - special_mode (optional) can be 'perfect_interpret' (perfect language interpretation)
 
 source define_vars.sh
 
@@ -15,7 +20,7 @@ elif [ "$split" == "unseen_all" ]
 then
   model_path="${model_path}_val_unseen.ckpt"
 else
-  echo "Split must be 'seen_env' or 'unseen_all'"
+  printf "ERROR: split must be 'seen_env' or 'unseen_all'!\n"  
   exit 1
 fi
 
@@ -27,7 +32,7 @@ then
   extra="$extra -perfect_interpret 1"
 fi
 
-command="python -u train.py -config $config_file -exp $out_dir $extra"
+command="python train.py -config $config_file -exp $out_dir $extra"
 echo $command
-$command
+eval $command
 

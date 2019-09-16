@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# > Evaluate agent with baseline help-request policies
+# > USAGE: base eval_ask_baselines.sh [ask_baseline] [split]
+# >   - ask_baseline must be 'no_ask' or 'ask_every_5' or 'random_ask_0_2'
+# >   - split must be 'seen_env' or 'unseen_all'
 
 source define_vars.sh
 
@@ -16,7 +21,7 @@ elif [ "$exp_name" == "random_ask_0_2" ]
 then                                                                            
   extra="$extra -ask_baseline random_ask,0.2"     
 else
-  echo "Usage: bash eval_ask_baselines.sh [no_ask|ask_every_5|random_ask_0_2] [split]"
+  echo "ERROR: ask_baseline must be 'no_ask' or 'ask_every_5' or 'random_ask_0_2'"
   exit 1
 fi
 
@@ -32,13 +37,13 @@ elif [ "$split" == "unseen_all" ]
 then
   model_path="${model_path}_val_unseen.ckpt" 
 else
-  echo "Split must be 'seen_env' or 'unseen_all'"
+  echo "ERROR: split must be 'seen_env' or 'unseen_all'"
   exit 1
 fi
 
-extra="-eval_only 1 -load_path $model_path"
+extra="$extra -eval_only 1 -load_path $model_path"
 
-command="python -u train.py -config $config_file -exp $out_dir $extra"
+command="python train.py -config $config_file -exp $out_dir $extra"
 echo $command
-$command
+eval $command
 

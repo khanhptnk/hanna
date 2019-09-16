@@ -39,13 +39,9 @@ class AskAgent(BaseAgent):
         self.device = device
 
         self.instr_padding_idx = hparams.instr_padding_idx
-        self.ask_baseline = hparams.ask_baseline
-        if hasattr(hparams, 'instruction_baseline'):
-            self.instruction_baseline = hparams.instruction_baseline
-        else:
-            self.instruction_baseline = None
-        if hasattr(hparams, 'perfect_interpretation') and hparams.perfect_interpretation:
-            self.perfect_interpretation = True
+        #self.ask_baseline = hparams.ask_baseline
+        #if hasattr(hparams, 'perfect_interpretation') and hparams.perfect_interpretation:
+        #    self.perfect_interpretation = True
 
         self.from_numpy = lambda array: \
             torch.from_numpy(array).to(self.device)
@@ -86,7 +82,7 @@ class AskAgent(BaseAgent):
         nav_seq_list = []
         for ob in obs:
             instruction = ob['instruction']
-            if self.instruction_baseline == 'vision_only' and ob['mode'] == 'on_route':
+            if self.hparams.instruction_baseline == 'vision_only' and ob['mode'] == 'on_route':
                 instruction = ''
             nav_seq_list.append(self.env.encode(instruction))
 
@@ -104,7 +100,6 @@ class AskAgent(BaseAgent):
                to_tensor(goal_view_feature_tuple)
 
     def _nav_action_variable(self, obs):
-        # get the maximum number of actions of all sample in this batch
         max_num_a = max(len(ob['adj_loc_list']) for ob in obs)
         invalid = np.zeros((self.batch_size, max_num_a), np.uint8)
         action_embed_dim = obs[0]['action_embeds'].shape[-1]
@@ -124,7 +119,7 @@ class AskAgent(BaseAgent):
 
         ask_mask_indices = []
         for i, ob in enumerate(obs):
-            if ob['queries_unused'] <= 0 or ob['ended'] or \
+            if ob['ended'] or \
                 not self.anna.can_request(ob['scan'], ob['viewpoint']):
                 ask_mask_indices.append(
                     (i, self.ask_actions.index('request_help')))
@@ -159,7 +154,7 @@ class AskAgent(BaseAgent):
             return self._sample(logit)
         sys.exit('Invalid feedback option')
 
-    def _compute_nav_dist(self, obs, nav_logit, print_prob=None):
+    def _compute_nav_dist(self, obs, nav_logit):
         nav_softmax = F.softmax(nav_logit, dim=1).tolist()
         nav_softmax_full = np.zeros((self.batch_size,
             AskAgent.n_output_nav_actions()), dtype=np.float32)
@@ -170,9 +165,9 @@ class AskAgent(BaseAgent):
         return self.from_numpy(nav_softmax_full)
 
     def _compute_loss(self):
-
         self.loss = self.nav_loss + self.ask_loss
         self.losses.append(self.loss.item() / self.episode_len)
+        print(self.loss.item())
 
         self.nav_losses.append(self.nav_loss.item() / self.episode_len)
         self.ask_losses.append(self.ask_loss.item() / self.episode_len)
@@ -191,14 +186,9 @@ class AskAgent(BaseAgent):
         self.ask_losses = []
 
     def test(self, env_name, env, feedback, iter):
-        ''' Evaluate once on each instruction in the current environment '''
-
         self.is_eval = True
         self._setup(env, feedback)
         self.model.eval()
-
-        if hasattr(self, 'perfect_interpretation') and self.perfect_interpretation:
-            self.bcui = True
 
         self.episode_len = self.hparams.eval_episode_len
 
@@ -215,8 +205,6 @@ class AskAgent(BaseAgent):
         return BaseAgent.test(self)
 
     def train(self, env, optimizer, start_iter, end_iter, feedback):
-        ''' Train for a given number of iterations '''
-
         self.is_eval = False
         self._setup(env, feedback)
         self.model.train()
@@ -254,7 +242,6 @@ class SimpleAgent(BaseAgent):
             self.nav_teacher = make_oracle('nav', self.env_oracle)
 
     def test(self, env_name, env, feedback, iter):
-
         self.is_eval = True
         self.env = env
         self.losses = [0]
@@ -263,7 +250,6 @@ class SimpleAgent(BaseAgent):
         return BaseAgent.test(self)
 
     def rollout(self):
-
         # Reset environment.
         obs = self.env.reset()
         batch_size = len(obs)

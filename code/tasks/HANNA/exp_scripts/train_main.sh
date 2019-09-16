@@ -1,4 +1,7 @@
 #!/bin/bash
+# 
+# > Train final agent
+# > USAGE: bash train_main.sh [device_id]
 
 source define_vars.sh
 
@@ -7,7 +10,7 @@ cd ..
 out_dir="main"
 device="${1:-0}"
 
-command="python3 -u train.py -config $config_file -exp $out_dir -device $device"
-echo $command
-$command
+arguments="python train.py -config $config_file -exp $out_dir -device $device"
+echo $arguments
+eval $arguments
 

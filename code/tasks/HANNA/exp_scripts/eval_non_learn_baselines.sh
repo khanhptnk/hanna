@@ -1,8 +1,13 @@
 #!/bin/bash
+#
+# > Evaluate non-learning agents
+# > USAGE: bash eval_non_learn_baselines.sh [agent_name]
+# >   - agent_name must be 'forward' or 'random' or 'shortest'
 
 source define_vars.sh
 
 cd ..
+
 
 exp_name=$1
 out_dir="no_learn_${exp_name}"
@@ -19,12 +24,12 @@ elif [ "$exp_name" == "shortest" ]
 then
   extra="$extra -shortest_agent 1"
 else
-  echo "Usage: bash non_learn_baselines.sh [forward|random|shortest]"
+  printf "ERROR: agent_name must be 'forward' or 'random' or 'shortest'\n"
   exit 1
 fi
 
 
-command="python -u train.py -config $config_file -exp $out_dir $extra"
+command="python train.py -config $config_file -exp $out_dir $extra"
 echo $command
-$command
+eval $command
 

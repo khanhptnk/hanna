@@ -72,6 +72,7 @@ def load(path, device):
             setattr(hparams, flag, value)
 
     set_path()
+
     return ckpt
 
 def compute_ask_stats(agent, traj):
@@ -116,7 +117,7 @@ def compute_ask_stats(agent, traj):
                     if key in ask_action_dict:
                         ask_repeats += request_index in ask_action_dict[key]
                     ask_action_dict[key].add(request_index)
-                if agent.ask_baseline is None:
+                if hparams.ask_baseline is None:
                     for reason in AskTeacher.reason_labels:
                         agent_reasons[reason].append(reason in t['agent_reason'][i])
                         teacher_reasons[reason].append(reason in t['teacher_reason'][i])
@@ -143,7 +144,7 @@ def compute_ask_stats(agent, traj):
     loss_str += ' ask %.2f, dont_ask %.2f' % (
         np.average(agent_ask) * 100, 100 - np.average(agent_ask) * 100)
 
-    if agent.ask_baseline is None:
+    if hparams.ask_baseline is None:
         for reason in AskTeacher.reason_labels:
             loss_str += ', %s %.2f %.2f %.2f/%.2f/%.2f' % (
                 reason,
@@ -281,7 +282,7 @@ def train(train_env, val_envs, agent, model, optimizer, start_iter, end_iter,
     return None
 
 
-def train_val(seed=None):
+def train_val():
     ''' Train on the training set, and validate on seen and unseen splits. '''
 
     # Set which GPU to use
@@ -300,8 +301,10 @@ def train_val(seed=None):
     start_iter = 0
     end_iter = hparams.n_iters
 
-    if seed is not None:
-        hparams.seed = seed
+    if not hasattr(hparams, 'ask_baseline'):
+        hparams.ask_baseline = None
+    if not hasattr(hparams, 'instruction_baseline'):
+        hparams.instruction_baseline = None
 
     # Set random seeds
     torch.manual_seed(hparams.seed)

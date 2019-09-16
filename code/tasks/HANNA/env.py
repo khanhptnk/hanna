@@ -257,7 +257,6 @@ class Batch():
                 'time' : self.time[i],
                 'time_on_task': self.time_on_task[i],
                 'ended': self.ended[i],
-                'queries_unused': self.queries_unused[i],
                 'viewpoint' : state.location.viewpointId,
                 'view_index' : state.viewIndex,
                 'heading' : state.heading,

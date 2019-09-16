@@ -190,10 +190,11 @@ class StateDecoderLayer(TransformerLayer):
         self.self_attention = self.attention_fn(
             query_size, mem_size, output_size)
 
-        if hparams.no_sim_attend:
+        self.no_sim_attend = hparams.no_sim_attend
+        if self.no_sim_attend:
             self.feed_forward = self.feed_forward_fn(output_size, output_size)
         else:
-            self.sim_attention  = SimAttention()
+            self.sim_attention = SimAttention()
             self.feed_forward = self.feed_forward_fn(output_size, output_size)
             self.gate = nn.Sequential(
                 nn.Linear(output_size * 2, output_size),
@@ -367,10 +368,8 @@ class Seq2SeqModel(nn.Module):
         # Reset local time only
         self.local_time = self.local_time_embedding.reset(batch_size)
 
-    def compute_features(self, curr_view_features,
-            goal_view_features, print_prob=None):
-        scene = self.curr_visual_attention(
-            self.last_output, curr_view_features, print_prob=print_prob)
+    def compute_features(self, curr_view_features, goal_view_features):
+        scene = self.curr_visual_attention(self.last_output, curr_view_features)
         goal_sim = self.match_view(curr_view_features, goal_view_features)
         goal_sim = goal_sim.unsqueeze(-1).expand(-1, -1, 4).contiguous()\
             .view(-1, goal_sim.size(1) * 4)
@@ -393,13 +392,13 @@ class Seq2SeqModel(nn.Module):
         return d
 
     def decode_text(self, input, text_ctx, text_ctx_mask,
-            curr_view_features, goal_view_features, print_prob=None):
+            curr_view_features, goal_view_features):
         '''
             Take an inter-task decoding step
         '''
 
         hidden, output = self.text_decoder(input, self.local_time, text_ctx,
-            text_ctx_mask, print_prob=print_prob)
+            text_ctx_mask)
 
         self.last_output = hidden
         self.local_time = self.local_time_embedding()
@@ -467,18 +466,16 @@ class NavModule(Seq2SeqModel):
         return self.start_action.expand(batch_size, -1)
 
     def decode(self, global_time, local_time, prev_a, a_embeds, text_ctx,
-            text_ctx_mask, curr_view_features, goal_view_features, logit_mask,
-            print_prob=None):
+            text_ctx_mask, curr_view_features, goal_view_features, logit_mask):
 
         scene, goal_sim = self.compute_features(
-            curr_view_features, goal_view_features, print_prob=print_prob)
+            curr_view_features, goal_view_features)
 
         text_input = torch.cat((prev_a, scene, goal_sim), dim=-1)
         text_output = self.decode_text(text_input, text_ctx, text_ctx_mask,
-            curr_view_features, goal_view_features, print_prob=print_prob)
+            curr_view_features, goal_view_features)
 
-        state_input = torch.cat(
-            text_output + (goal_sim,), dim=-1)
+        state_input = torch.cat(text_output + (goal_sim,), dim=-1)
         state_output = self.decode_state(state_input)
 
         logit = self.predictor(state_output, a_embeds)
@@ -548,8 +545,7 @@ class AskModule(Seq2SeqModel):
 
         nav_dist = nav_dist.unsqueeze(-1).expand(-1, -1, 4).contiguous()\
             .view(-1, nav_dist.size(1) * 4)
-        state_input = torch.cat(
-            text_output + (goal_sim, nav_dist), dim=-1)
+        state_input = torch.cat(text_output + (goal_sim, nav_dist), dim=-1)
 
         mask = torch.stack(self.action_mask).transpose(0, 1).contiguous()
         state_output = self.decode_state(state_input, mask=mask)

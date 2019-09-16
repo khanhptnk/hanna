@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# > Train agent with baseline help-request policies
+# > USAGE: bash train_ask_baselines.sh [ask_baseline] [device_id]
+# >  - ask_baseline must be 'no_ask' or 'ask_every_5' or 'random_ask_0_2'
 
 source define_vars.sh
 
@@ -20,13 +24,13 @@ elif [ "$exp_name" == "random_ask_0_2" ]
 then
   extra="$extra -ask_baseline random_ask,0.2"
 else
-  echo "Usage: bash train_ask_baselines.sh [no_ask|ask_every_5]random_ask_0_2] [device_id]"
+  echo "ERROR: ask_baseline must be 'no_ask' or 'ask_every_5' or 'random_ask_0_2'"
   exit 1
 fi
 
 extra="$extra -alpha 0.5"
 
-command="python -u train.py -config $config_file -exp $out_dir $extra -device $device"
+command="python train.py -config $config_file -exp $out_dir $extra -device $device"
 echo $command
-$command
+eval $command
 

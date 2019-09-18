@@ -29,7 +29,7 @@ $ sudo -E bash scripts/run_docker.sh
 
 Inside the Docker image, run
 ```
-~/mount/hanna/code# bash scripts/setup.sh
+~/mount/hanna/code# bash scripts/build_simulator.sh
 ```
 
 ### 4. Test the simulator

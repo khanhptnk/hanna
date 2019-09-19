@@ -20,6 +20,8 @@ Export link to the Matterport3D root directory
 $ export MATTERPORT_DATA_DIR=<some_path>/v1/scans
 ```
 
+Note that if is a remote sshfs mount, you will need to mount it with the -o allow_root option or the docker container won't be able to access this directory.
+
 Run the image without graphics
 ```
 $ sudo -E bash scripts/run_docker.sh

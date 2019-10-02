@@ -8,6 +8,8 @@ Scripts for reproducing results in [our EMNLP'19 paper](https://arxiv.org/abs/19
 ~/mount/hanna/code/tasks/HANNA# cd exp_scripts/
 ```
 
+<font color="red"> IMPORTANT </font>
+
 To learn how to run a script, type:
 
 ```

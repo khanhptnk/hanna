@@ -8,7 +8,7 @@ Scripts for reproducing results in [our EMNLP'19 paper](https://arxiv.org/abs/19
 ~/mount/hanna/code/tasks/HANNA# cd exp_scripts/
 ```
 
-<font color="red"> IMPORTANT </font>
+<span style="color:blue">some *blue* text</span>
 
 To learn how to run a script, type:
 

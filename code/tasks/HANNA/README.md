@@ -37,6 +37,15 @@ Results will be saved to a `json` file and evaluated metrics will be printed to 
 $ python manual_score.py ${result_name}.json
 ```
 
+To train the LSTM-based agent, you need to switch to the `lstm` branch
+```
+(on another terminal tab)
+$ git checkout lstm
+(on the terminal tab where docker is running)
+~/mount/hanna/code/tasks/HANNA/exp_scripts# bash train_lstm.sh
+~/mount/hanna/code/tasks/HANNA/exp_scripts# bash eval_lstm.sh
+```
+
 As the result files are generally very large and hard to view, we also provide you a `debug_tool.py` for better scrutinizing the results
 ```
 $ python debug_tool.py ${result_name}.json

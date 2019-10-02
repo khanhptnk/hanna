@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# > Evaluate LSTM-seq2seq baseline
+# > Evaluate LSTM-seq2seq baseline (Table 13)
 # > USAGE: bash eval_lstm.sh [split] 
 # >   - split must be 'seen_env' or 'unseen_all'
 
@@ -25,7 +25,7 @@ fi
 
 extra="-eval_only 1 -load_path $model_path"
 
-command="python train.py -config $config_file -exp $out_dir $extra"
+command="python train.py -config $config_file -exp $out_dir $extra -batch_size 1"
 echo $command
 eval $command
 

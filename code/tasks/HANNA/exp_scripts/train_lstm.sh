@@ -1,6 +1,6 @@
 #!/bin/bash
 # 
-# > Train LSTM-seq2seq baseline
+# > Train LSTM-seq2seq baseline (Tables 6 and 13)
 # > USAGE: bash train_lstm.sh [device_id]
 
 source define_vars.sh

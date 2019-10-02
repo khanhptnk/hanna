@@ -8,7 +8,7 @@ Scripts for reproducing results in [our EMNLP'19 paper](https://arxiv.org/abs/19
 ~/mount/hanna/code/tasks/HANNA# cd exp_scripts/
 ```
 
-**IMPORTANT: the evaluation scripts uses a batch size of 1 to avoid non-deterministic agent behavior. The scripts will generate results in Tables 9, 10, 11, 12, 13 in Appendix F of the Arxiv paper. To generate results in Tables 3, 4, 5, 6, 8, change the batch_size flag in the scripts to 32.  **
+**IMPORTANT: the evaluation scripts uses a batch size of 1 to avoid non-deterministic agent behavior. The scripts will generate results in Tables 9, 10, 11, 12, 13 in Appendix F of the Arxiv paper. To generate results in Tables 3, 4, 5, 6, 8, change the batch_size flag in the scripts to 32.**
 
 To learn how to run a script, type:
 

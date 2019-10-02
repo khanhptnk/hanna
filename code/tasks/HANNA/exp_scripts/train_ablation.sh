@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# > Train ablation studied agents
+# > Train ablation studied agents (Tables 8 and 9)
 # > USAGE: bash train_ablation.sh [exp_name] [device_id]
 # >   - exp_name must be 'no_reason' (no condition prediction, beta = 0) or 
 # >                      'no_curious' (no curiosity-encouraging, alpha = 0) or 
@@ -30,7 +30,7 @@ elif [ "$exp_name" == "no_reset_inter" ]
 then
   extra="$extra -no_reset_inter 1"
 else
-  printf "ERROR: exp_name must be 'no_reason' or 'no_curious' or 'no_sim_attend'"
+  printf "ERROR: exp_name must be 'no_reason' or 'no_curious' or 'no_sim_attend' or 'no_reset_inter'"
   exit 1
 fi
 

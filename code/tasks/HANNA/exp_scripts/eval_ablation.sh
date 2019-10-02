@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# > Evaluate ablation studied agents
+# > Evaluate ablation studied agents (Table 9). NOTE: evaluation is conducted on VAL splits
 # > USAGE: base eval_ablation.sh [exp_name] [split]
 # >   - exp_name must be 'no_reason' (no condition prediction, beta = 0) or
 # >                      'no_curious' (no curiosity-encouraging, alpha = 0) or
@@ -14,20 +14,20 @@ cd ..
 
 exp_name=$1
 
-if [ "$exp_name" == "no_reason_0" ]
+if [ "$exp_name" == "no_reason" ]
 then
   extra="$extra -no_reason 1"
-elif [ "$exp_name" == "alpha_0" ]
+elif [ "$exp_name" == "no_curious" ]
 then
   extra="$extra -alpha 0"
-elif [ "$exp_name" == "no_sim_attend_0" ]                                        
+elif [ "$exp_name" == "no_sim_attend" ]                                        
 then                                                                            
   extra="$extra -no_sim_attend 1"     
-elif [ "$exp_name" == "no_reset_2" ]
+elif [ "$exp_name" == "no_reset_inter" ]
 then
   extra="$extra -no_reset_inter 1"
 else
-  echo "ERROR: exp_name must be 'no_reason' or 'no_curious' or 'no_sim_attend'"
+  echo "ERROR: exp_name must be 'no_reason' or 'no_curious' or 'no_sim_attend' or 'no_reset_inter'"
   exit 1
 fi
 
@@ -49,7 +49,7 @@ fi
 
 extra="$extra -eval_only 1 -load_path $model_path -eval_on_val 1"
 
-command="python train.py -config $config_file -exp $out_dir $extra"
+command="python train.py -config $config_file -exp $out_dir $extra -batch_size 1"
 echo $command
 eval $command
 

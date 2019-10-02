@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# > Evaluate agent trained with vision-only assistance
+# > Evaluate agent trained with vision-only assistance (Table 11)
 # > USAGE: bash eval_vision_only.sh [language_only|vision_only] [split]
 # >   - split can be 'seen_env' or 'unseen_all'
 
@@ -27,7 +27,7 @@ fi
 extra="-eval_only 1 -load_path $model_path -instruction_baseline vision_only" 
 
 
-command="python train.py -config $config_file -exp $out_dir $extra"
+command="python train.py -config $config_file -exp $out_dir $extra -batch_size 1"
 echo $command
 eval $command
 

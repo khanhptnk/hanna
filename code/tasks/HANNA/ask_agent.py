@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import random
 import time
+from collections import defaultdict
 
 import torch
 import torch.nn as nn
@@ -187,7 +188,11 @@ class AskAgent(BaseAgent):
         self.episode_len = self.hparams.eval_episode_len
 
         self.anna.is_eval = True
-        if '_unseen_anna' in env_name:
+        self.cached_results = defaultdict(dict)
+
+        if '_seen_anna' in env_name:
+            self.anna.split_name = 'train_seen'
+        elif '_unseen_anna' in env_name:
             self.anna.split_name = 'train_unseen'
         elif env_name == 'val_unseen':
             self.anna.split_name = 'val'

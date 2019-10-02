@@ -32,7 +32,7 @@ then
   extra="$extra -perfect_interpret 1"
 fi
 
-command="python train.py -config $config_file -exp $out_dir $extra"
+command="python train.py -config $config_file -exp $out_dir $extra -batch_size 1"
 echo $command
 eval $command
 

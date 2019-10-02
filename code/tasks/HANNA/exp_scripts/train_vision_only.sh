@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# > Train agent with vision-only assistance
+# > Train agent with vision-only assistance (Tables 4 and 11)
 # > USAGE: bash train_vision_only.sh [device_id]
 
 source define_vars.sh

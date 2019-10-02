@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# > Evaluate agent with baseline help-request policies
+# > Evaluate agent with baseline help-request policies (Table 12)
 # > USAGE: base eval_ask_baselines.sh [ask_baseline] [split]
 # >   - ask_baseline must be 'no_ask' or 'ask_every_5' or 'random_ask_0_2'
 # >   - split must be 'seen_env' or 'unseen_all'
@@ -43,7 +43,7 @@ fi
 
 extra="$extra -eval_only 1 -load_path $model_path"
 
-command="python train.py -config $config_file -exp $out_dir $extra"
+command="python train.py -config $config_file -exp $out_dir $extra -batch_size 1"
 echo $command
 eval $command
 

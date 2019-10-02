@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# > Train agent with baseline help-request policies
+# > Train agent with baseline help-request policies (Tables 5 and 12)
 # > USAGE: bash train_ask_baselines.sh [ask_baseline] [device_id]
 # >  - ask_baseline must be 'no_ask' or 'ask_every_5' or 'random_ask_0_2'
 

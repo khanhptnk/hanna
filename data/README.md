@@ -17,6 +17,7 @@ You need to download the `matterport_skybox_images`, `undistorted_camera_paramet
 
 We provide the script `unzip_matterport.sh` in this directory to help you unzip the data:
 ```
+$ export MATTERPORT_DATA_DIR=<some_path>/v1/scans
 $ bash unzip_matterport.sh $MATTERPORT_DATA_DIR $file_type
 ```
 where `$file_type` is a file type (e.g., `matterport_skybox_images` or `undistorted_camera_parameters`).

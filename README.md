@@ -8,7 +8,7 @@ Authors: [Khanh Nguyen](https://khanhptnk.github.io), [Hal Daumé III](http://us
 
 ## What is HANNA?
 
-HANNA is an interactive photo-realistic simulator that mimics an agent fulfilling object-finding tasks with only first-person visual input by leveraging natural language-and-vision assistance.
+HANNA is an interactive photo-realistic simulator that mimics an agent fulfilling object-finding tasks by leveraging natural language-and-vision assistance.
 
 <p align="center">
 <img src="teaser/example.png" alt="IMAGE ALT TEXT HERE" width="1000" border="10"/>

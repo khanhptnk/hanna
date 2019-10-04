@@ -17,7 +17,7 @@ You need to download the `matterport_skybox_images`, `undistorted_camera_paramet
 ```
 $ bash unzip_matterport.sh $MATTERPORT_DATA_DIR $file_type
 ```
-where `$file_type` is a file type (e.g., `matterport_skybox_images` or `undistorted_camera_parameters`) and `MATTERPORT_DATA_DIR=<some_path>/v1/scans` is the location of the Matterport3D dataset.
+where `$file_type` is a file type (e.g., `matterport_skybox_images`) and `MATTERPORT_DATA_DIR=<some_path>/v1/scans` is the location of the Matterport3D dataset.
 
 **Next: [Setup simulator](https://github.com/khanhptnk/hanna-private/tree/master/code)**
 

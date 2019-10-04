@@ -19,7 +19,7 @@ We provide the script `unzip_matterport.sh` in this directory to help you unzip 
 ```
 $ bash unzip_matterport.sh $MATTERPORT_DATA_DIR $file_type
 ```
-where `$file_type` is a file type (e.g., `matterport_skybox_images` or `undistorted_camera_parameters`) and `MATTERPORT_DATA_DIR` is where `<some_path>/v1/scans` is located.
+where `$file_type` is a file type (e.g., `matterport_skybox_images` or `undistorted_camera_parameters`) and `MATTERPORT_DATA_DIR=<some_path>/v1/scans` is the location of the Matterport3D dataset.
 
 **Next: [Setup simulator](https://github.com/khanhptnk/hanna-private/tree/master/code)**
 

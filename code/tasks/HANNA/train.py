@@ -349,6 +349,7 @@ def train_val():
     val_envs = {}
     for key, value in val_envs_tmp.items():
         if '_seen' in key:
+            val_envs[key + '_env_seen_anna'] = value
             val_envs[key + '_env_unseen_anna'] = value
         else:
             assert '_unseen' in key

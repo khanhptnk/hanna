@@ -1,16 +1,14 @@
 **Please first [setup the simulator](https://github.com/khanhptnk/hanna-private/tree/master/code)!**
 
-**IMPORTANT: the evaluation scripts use a batch size of 1 to avoid non-deterministic agent behavior. The scripts will generate results in Tables 9, 10, 11, 12, 13 in Appendix F of the Arxiv paper. To generate results in Tables 3, 4, 5, 6, 8, change the `batch_size` flag in the scripts to 32.**
-
-We provide the pre-trained model of our final agent [here](https://www.dropbox.com/s/6b6yyr6dic6vu2c/hanna_main_pretrained.zip?dl=1).
-
 Scripts for reproducing results in [our EMNLP'19 paper](https://arxiv.org/abs/1909.01871) are in the `exp_scripts` directory. You need to run these scripts **inside the `exp_scripts` directory on the Docker image**.
 
 ```
 ~/mount/hanna/code/tasks/HANNA# cd exp_scripts/
 ```
 
+**IMPORTANT: the evaluation scripts use a batch size of 1 to avoid non-deterministic agent behavior. The scripts will generate results in Tables 9, 10, 11, 12, 13 in Appendix F of the Arxiv paper. To generate results in Tables 3, 4, 5, 6, 8, change the `batch_size` flag in the scripts to 32.**
 
+We provide the pre-trained model of our final agent [here](https://www.dropbox.com/s/6b6yyr6dic6vu2c/hanna_main_pretrained.zip?dl=1).
 
 To learn how to run a script, type:
 
@@ -36,11 +34,6 @@ Training takes about 10 hours on a Titan Xp GPU. After training, you can evaluat
 ~/mount/hanna/code/tasks/HANNA/exp_scripts# bash eval_main.sh
 ```
 
-Results will be saved to a `json` file and evaluated metrics will be printed to the screen. You can also re-compute the metrics using `manual_score.py`
-```
-$ python manual_score.py ${result_name}.json
-```
-
 To train the LSTM-based agent, you need to switch to the `lstm` branch
 ```
 (on another terminal tab)
@@ -48,6 +41,11 @@ $ git checkout lstm
 (on the terminal tab where docker is running)
 ~/mount/hanna/code/tasks/HANNA/exp_scripts# bash train_lstm.sh
 ~/mount/hanna/code/tasks/HANNA/exp_scripts# bash eval_lstm.sh
+```
+
+Results will be saved to a `json` file and evaluated metrics will be printed to the screen. You can also re-compute the metrics using `manual_score.py`
+```
+$ python manual_score.py ${result_name}.json
 ```
 
 As the result files are generally very large and hard to view, we also provide you a `debug_tool.py` for better scrutinizing the results

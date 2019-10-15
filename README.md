@@ -6,6 +6,8 @@ EMNLP'19 Paper: [Help, Anna! Visual Navigation with Natural Multimodal Assistanc
 
 Authors: [Khanh Nguyen](https://khanhptnk.github.io), [Hal Daumé III](http://users.umiacs.umd.edu/~hal/)
 
+UPDATE Oct 15, 2019: fix a bug in the validation code that prevented the code from reproducing results in the paper. 
+
 ## What is HANNA?
 
 HANNA is an interactive photo-realistic simulator that mimics an agent fulfilling object-finding tasks by leveraging natural language-and-vision assistance.

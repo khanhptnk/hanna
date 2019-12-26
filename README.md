@@ -18,7 +18,7 @@ An example HANNA task.
 </p>
 
 
-## How is HANNA different from other photo-realistic visual navigation tasks?
+## How is HANNA different from other visual navigation tasks?
 
 <p align="center">
 <img src="teaser/difference.png" alt="IMAGE ALT TEXT HERE" width="500" border="10"/>

@@ -9,7 +9,7 @@ The following directories will be created:
 * `connectivity`: environment graphs.
 * `img_features`: precomputed image embeddings computed by ResNet-152 (provided by the [Matterport3D simulator](https://github.com/peteanderson80/Matterport3DSimulator)). 
 
-**Important**: The ImageNet features are not maintained by us, so if the link would not work in the future, please visit: https://github.com/peteanderson80/Matterport3DSimulator#precomputing-resnet-image-features and click on "ResNet-152-imagenet features [380K/2.9GB]" to get the latest link, or email an author of [the vision-language navigation paper](https://arxiv.org/abs/1711.07280).
+**Important**: The ImageNet features are not maintained by us, so if the link would not work in the future, please visit: https://github.com/peteanderson80/Matterport3DSimulator#precomputing-resnet-image-features and click on "ResNet-152-imagenet features [380K/2.9GB]" to get the latest link, or email an author of [the VLN paper](https://arxiv.org/abs/1711.07280).
 
 ### 2. Download Matterport3D dataset
 

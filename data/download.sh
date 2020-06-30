@@ -15,7 +15,7 @@ unzip hanna_data.zip
 rm -rf img_features
 mkdir img_features
 cd img_features
-wget -O ResNet-152-imagenet.zip https://www.dropbox.com/s/715bbj8yjz32ekf/ResNet-152-imagenet.zip?dl=1
+wget -O ResNet-152-imagenet.zip https://www.dropbox.com/s/o57kxh2mn5rkx4o/ResNet-152-imagenet.zip?dl=1
 unzip ResNet-152-imagenet.zip
 
 
